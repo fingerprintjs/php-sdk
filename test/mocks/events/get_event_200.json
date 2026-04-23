@@ -112,6 +112,7 @@
     "last_seen_at": 1708102555327,
     "provider": "Massive"
   },
+  "proxy_ml_score": 0.2,
   "vpn": false,
   "vpn_confidence": "high",
   "vpn_origin_timezone": "Europe/Berlin",
@@ -283,5 +284,7 @@
     "session_storage": true,
     "date_time_locale": "en-US",
     "audio": 124.04347745512496
-  }
+  },
+  "rare_device": false,
+  "rare_device_percentile_bucket": "<p95"
 }

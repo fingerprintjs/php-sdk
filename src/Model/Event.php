@@ -95,6 +95,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'proxy' => 'bool',
         'proxy_confidence' => '\Fingerprint\ServerSdk\Model\ProxyConfidence',
         'proxy_details' => '\Fingerprint\ServerSdk\Model\ProxyDetails',
+        'proxy_ml_score' => 'float',
         'incognito' => 'bool',
         'jailbroken' => 'bool',
         'location_spoofing' => 'bool',
@@ -117,6 +118,8 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'vpn_origin_country' => 'string',
         'vpn_methods' => '\Fingerprint\ServerSdk\Model\VpnMethods',
         'high_activity_device' => 'bool',
+        'rare_device' => 'bool',
+        'rare_device_percentile_bucket' => '\Fingerprint\ServerSdk\Model\RareDevicePercentileBucket',
         'raw_device_attributes' => '\Fingerprint\ServerSdk\Model\RawDeviceAttributes',
     ];
 
@@ -162,6 +165,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'proxy' => null,
         'proxy_confidence' => null,
         'proxy_details' => null,
+        'proxy_ml_score' => 'double',
         'incognito' => null,
         'jailbroken' => null,
         'location_spoofing' => null,
@@ -184,6 +188,8 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'vpn_origin_country' => null,
         'vpn_methods' => null,
         'high_activity_device' => null,
+        'rare_device' => null,
+        'rare_device_percentile_bucket' => null,
         'raw_device_attributes' => null,
     ];
 
@@ -225,6 +231,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'proxy' => false,
         'proxy_confidence' => false,
         'proxy_details' => false,
+        'proxy_ml_score' => false,
         'incognito' => false,
         'jailbroken' => false,
         'location_spoofing' => false,
@@ -247,6 +254,8 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'vpn_origin_country' => false,
         'vpn_methods' => false,
         'high_activity_device' => false,
+        'rare_device' => false,
+        'rare_device_percentile_bucket' => false,
         'raw_device_attributes' => false,
     ];
 
@@ -296,6 +305,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'proxy' => 'proxy',
         'proxy_confidence' => 'proxy_confidence',
         'proxy_details' => 'proxy_details',
+        'proxy_ml_score' => 'proxy_ml_score',
         'incognito' => 'incognito',
         'jailbroken' => 'jailbroken',
         'location_spoofing' => 'location_spoofing',
@@ -318,6 +328,8 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'vpn_origin_country' => 'vpn_origin_country',
         'vpn_methods' => 'vpn_methods',
         'high_activity_device' => 'high_activity_device',
+        'rare_device' => 'rare_device',
+        'rare_device_percentile_bucket' => 'rare_device_percentile_bucket',
         'raw_device_attributes' => 'raw_device_attributes',
     ];
 
@@ -359,6 +371,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'proxy' => 'setProxy',
         'proxy_confidence' => 'setProxyConfidence',
         'proxy_details' => 'setProxyDetails',
+        'proxy_ml_score' => 'setProxyMlScore',
         'incognito' => 'setIncognito',
         'jailbroken' => 'setJailbroken',
         'location_spoofing' => 'setLocationSpoofing',
@@ -381,6 +394,8 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'vpn_origin_country' => 'setVpnOriginCountry',
         'vpn_methods' => 'setVpnMethods',
         'high_activity_device' => 'setHighActivityDevice',
+        'rare_device' => 'setRareDevice',
+        'rare_device_percentile_bucket' => 'setRareDevicePercentileBucket',
         'raw_device_attributes' => 'setRawDeviceAttributes',
     ];
 
@@ -422,6 +437,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'proxy' => 'getProxy',
         'proxy_confidence' => 'getProxyConfidence',
         'proxy_details' => 'getProxyDetails',
+        'proxy_ml_score' => 'getProxyMlScore',
         'incognito' => 'getIncognito',
         'jailbroken' => 'getJailbroken',
         'location_spoofing' => 'getLocationSpoofing',
@@ -444,6 +460,8 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'vpn_origin_country' => 'getVpnOriginCountry',
         'vpn_methods' => 'getVpnMethods',
         'high_activity_device' => 'getHighActivityDevice',
+        'rare_device' => 'getRareDevice',
+        'rare_device_percentile_bucket' => 'getRareDevicePercentileBucket',
         'raw_device_attributes' => 'getRawDeviceAttributes',
     ];
 
@@ -494,6 +512,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         $this->setIfExists('proxy', $data ?? [], null);
         $this->setIfExists('proxy_confidence', $data ?? [], null);
         $this->setIfExists('proxy_details', $data ?? [], null);
+        $this->setIfExists('proxy_ml_score', $data ?? [], null);
         $this->setIfExists('incognito', $data ?? [], null);
         $this->setIfExists('jailbroken', $data ?? [], null);
         $this->setIfExists('location_spoofing', $data ?? [], null);
@@ -516,6 +535,8 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         $this->setIfExists('vpn_origin_country', $data ?? [], null);
         $this->setIfExists('vpn_methods', $data ?? [], null);
         $this->setIfExists('high_activity_device', $data ?? [], null);
+        $this->setIfExists('rare_device', $data ?? [], null);
+        $this->setIfExists('rare_device_percentile_bucket', $data ?? [], null);
         $this->setIfExists('raw_device_attributes', $data ?? [], null);
     }
 
@@ -618,6 +639,14 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         if (null === $this->container['timestamp']) {
             $invalidProperties[] = "'timestamp' can't be null";
         }
+        if (!is_null($this->container['proxy_ml_score']) && ($this->container['proxy_ml_score'] > 1)) {
+            $invalidProperties[] = "invalid value for 'proxy_ml_score', must be smaller than or equal to 1.";
+        }
+
+        if (!is_null($this->container['proxy_ml_score']) && ($this->container['proxy_ml_score'] < 0)) {
+            $invalidProperties[] = "invalid value for 'proxy_ml_score', must be bigger than or equal to 0.";
+        }
+
         if (!is_null($this->container['tampering_ml_score']) && ($this->container['tampering_ml_score'] > 1)) {
             $invalidProperties[] = "invalid value for 'tampering_ml_score', must be smaller than or equal to 1.";
         }
@@ -1354,6 +1383,35 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     }
 
     /**
+     * Gets proxy_ml_score.
+     *
+     */
+    public function getProxyMlScore(): ?float
+    {
+        return $this->container['proxy_ml_score'];
+    }
+
+    /**
+     * Sets proxy_ml_score.
+     *
+     * @param float $proxy_ml_score Machine learning–based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `proxy` detection result
+     *
+     */
+    public function setProxyMlScore(float $proxy_ml_score): self
+    {
+        if ($proxy_ml_score > 1) {
+            throw new \InvalidArgumentException('invalid value for $proxy_ml_score when calling Event., must be smaller than or equal to 1.');
+        }
+        if ($proxy_ml_score < 0) {
+            throw new \InvalidArgumentException('invalid value for $proxy_ml_score when calling Event., must be bigger than or equal to 0.');
+        }
+
+        $this->container['proxy_ml_score'] = $proxy_ml_score;
+
+        return $this;
+    }
+
+    /**
      * Gets incognito.
      *
      */
@@ -1563,7 +1621,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     /**
      * Sets tampering.
      *
-     * @param bool $tampering Flag indicating browser tampering was detected. This happens when either:   * There are inconsistencies in the browser configuration that cross internal tampering thresholds (see `tampering_details.anomaly_score`).   * The browser signature resembles an \"anti-detect\" browser specifically designed to evade fingerprinting (see `tampering_details.anti_detect_browser`).
+     * @param bool $tampering The field can be used as a standalone flag for tampering detection. Alternatively, the more granular fields documented below can be used for workflows that require more context. * `true` if tampering is detected through an anomalous browser signature, anti-detect browser detection, or other tampering-related methods * `false` if none of the tampering checks return a positive result
      *
      */
     public function setTampering(bool $tampering): self
@@ -1607,7 +1665,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     /**
      * Sets tampering_ml_score.
      *
-     * @param float $tampering_ml_score A score that indicates the models calculated probability that an event is coming from an anti detect browser.   * Values above `0.8` indicate that the request is an anti detect browser based on the ml model   * Values below `0.8` indicate that the request is not an anti detect browser based on the ml model
+     * @param float $tampering_ml_score The output of this model is captured as tampering_ml_score, a number indicating how likely an event is coming from an anti detect browser. Values close to 1 signify higher confidence and we consider anything above the threshold of 0.8 to be actionable (the result and anti_detect_browser fields conveniently captures that fact)
      *
      */
     public function setTamperingMlScore(float $tampering_ml_score): self
@@ -1847,6 +1905,50 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     public function setHighActivityDevice(bool $high_activity_device): self
     {
         $this->container['high_activity_device'] = $high_activity_device;
+
+        return $this;
+    }
+
+    /**
+     * Gets rare_device.
+     *
+     */
+    public function getRareDevice(): ?bool
+    {
+        return $this->container['rare_device'];
+    }
+
+    /**
+     * Sets rare_device.
+     *
+     * @param bool $rare_device `true` if the device is considered rare based on its combination of hardware and software attributes.  A device is classified as rare if it falls within the top 99.9 percentile (lowest-frequency segment) of observed traffic,  or if its configuration has not been previously seen (`not_seen`). > This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+     *
+     */
+    public function setRareDevice(bool $rare_device): self
+    {
+        $this->container['rare_device'] = $rare_device;
+
+        return $this;
+    }
+
+    /**
+     * Gets rare_device_percentile_bucket.
+     *
+     */
+    public function getRareDevicePercentileBucket(): ?RareDevicePercentileBucket
+    {
+        return $this->container['rare_device_percentile_bucket'];
+    }
+
+    /**
+     * Sets rare_device_percentile_bucket.
+     *
+     * @param RareDevicePercentileBucket $rare_device_percentile_bucket rare_device_percentile_bucket
+     *
+     */
+    public function setRareDevicePercentileBucket(RareDevicePercentileBucket $rare_device_percentile_bucket): self
+    {
+        $this->container['rare_device_percentile_bucket'] = $rare_device_percentile_bucket;
 
         return $this;
     }

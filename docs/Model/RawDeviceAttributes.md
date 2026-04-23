@@ -13,10 +13,10 @@ Name | Type | Description | Notes
 **device_memory** | **int** | Rounded amount of RAM (in gigabytes) reported by the browser. | [optional]
 **timezone** | **string** | Timezone identifier detected on the client. | [optional]
 **canvas** | [**\Fingerprint\ServerSdk\Model\Canvas**](Canvas.md) |  | [optional]
-**languages** | **string[][]** | Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. | [optional]
+**languages** | **string[][]** | Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. Available for both browsers and iOS devices | [optional]
 **webgl_extensions** | [**\Fingerprint\ServerSdk\Model\WebGlExtensions**](WebGlExtensions.md) |  | [optional]
 **webgl_basics** | [**\Fingerprint\ServerSdk\Model\WebGlBasics**](WebGlBasics.md) |  | [optional]
-**screen_resolution** | **int[]** | Current screen resolution. | [optional]
+**screen_resolution** | **int[]** | Current screen resolution. Available for both browsers and iOS devices | [optional]
 **touch_support** | [**\Fingerprint\ServerSdk\Model\TouchSupport**](TouchSupport.md) |  | [optional]
 **oscpu** | **string** | Navigator &#x60;oscpu&#x60; string. | [optional]
 **architecture** | **int** | Integer representing the CPU architecture exposed by the browser. | [optional]
@@ -32,5 +32,9 @@ Name | Type | Description | Notes
 **plugins** | [**\Fingerprint\ServerSdk\Model\PluginsInner[]**](PluginsInner.md) | Browser plugins reported by &#x60;navigator.plugins&#x60;. | [optional]
 **indexed_db** | **bool** | Whether IndexedDB is available. | [optional]
 **math** | **string** | Hash of Math APIs used for entropy collection. | [optional]
+**device_model** | **string** | Device model string. Available only for Android and iOS devices. | [optional]
+**device_manufacturer** | **string** | Device manufacturer string. Available only for Android and iOS devices. | [optional]
+**font_hash** | **string** | Unique identifier for the user’s installed fonts. | [optional]
+**timezone_offset** | **string** | UTC offset in \&quot;±HH:MM\&quot; format derived from the detected IANA timezone. | [optional]
 
 [[Back to Model list]](../../README.md#documentation-for-models) [[Back to API list]](../../README.md#endpoints) [[Back to README]](../../README.md)

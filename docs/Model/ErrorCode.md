@@ -3,6 +3,7 @@
 Error code:
 * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
   that prevented us from parsing it (wrong type/surpassed limits).
+* `request_read_timeout` - The request body could not be read before the connection timed out.
 * `secret_api_key_required` - secret API key in header is missing or empty.
 * `secret_api_key_not_found` - No Fingerprint workspace found for specified secret API key.
 * `public_api_key_required` - public API key in header is missing or empty.
@@ -30,6 +31,7 @@ Error code:
 | Name | Value | Description |
 | --- | --- | --- |
 REQUEST_CANNOT_BE_PARSED | 'request_cannot_be_parsed' |  |
+REQUEST_READ_TIMEOUT | 'request_read_timeout' |  |
 SECRET_API_KEY_REQUIRED | 'secret_api_key_required' |  |
 SECRET_API_KEY_NOT_FOUND | 'secret_api_key_not_found' |  |
 PUBLIC_API_KEY_REQUIRED | 'public_api_key_required' |  |

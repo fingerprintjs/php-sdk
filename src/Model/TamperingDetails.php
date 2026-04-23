@@ -273,7 +273,7 @@ class TamperingDetails implements ModelInterface, \ArrayAccess, \JsonSerializabl
     /**
      * Sets anomaly_score.
      *
-     * @param float $anomaly_score Confidence score (`0.0 - 1.0`) for tampering detection:   * Values above `0.5` indicate tampering.   * Values below `0.5` indicate genuine browsers.
+     * @param float $anomaly_score The output of this model is captured as anomaly_score, a statistical score indicating how rare the visitor's browser signature is compared to the overall population. Values close to 1 signify highly anomalous browsers and we consider anything above the threshold of 0.5 to be actionable (the result field conveniently captures that fact).
      *
      */
     public function setAnomalyScore(float $anomaly_score): self
@@ -302,7 +302,7 @@ class TamperingDetails implements ModelInterface, \ArrayAccess, \JsonSerializabl
     /**
      * Sets anti_detect_browser.
      *
-     * @param bool $anti_detect_browser true if the identified browser resembles an \"anti-detect\" browser, such as Incognition, which attempts to evade identification by manipulating its fingerprint
+     * @param bool $anti_detect_browser Detects whether the request shows evidence of anti-detect browser usage. This field may be triggered by: * heuristic detection of known anti-detect browser behavior * machine learning detection of anti-detect browser patterns  Examples of anti-detect browsers include tools such as AdsPower, DolphinAnty, OctoBrowser, and GoLogin.
      *
      */
     public function setAntiDetectBrowser(bool $anti_detect_browser): self

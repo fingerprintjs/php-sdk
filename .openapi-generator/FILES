@@ -32,6 +32,7 @@ docs/Model/PluginsInnerMimeTypesInner.md
 docs/Model/Proximity.md
 docs/Model/ProxyConfidence.md
 docs/Model/ProxyDetails.md
+docs/Model/RareDevicePercentileBucket.md
 docs/Model/RawDeviceAttributes.md
 docs/Model/RequestHeaderModifications.md
 docs/Model/RuleActionHeaderField.md
@@ -39,6 +40,7 @@ docs/Model/RuleActionType.md
 docs/Model/SDK.md
 docs/Model/SearchEventsBot.md
 docs/Model/SearchEventsIncrementalIdentificationStatus.md
+docs/Model/SearchEventsRareDevicePercentileBucket.md
 docs/Model/SearchEventsSdkPlatform.md
 docs/Model/SearchEventsVpnConfidence.md
 docs/Model/SupplementaryIDHighRecall.md
@@ -90,6 +92,7 @@ src/Model/PluginsInnerMimeTypesInner.php
 src/Model/Proximity.php
 src/Model/ProxyConfidence.php
 src/Model/ProxyDetails.php
+src/Model/RareDevicePercentileBucket.php
 src/Model/RawDeviceAttributes.php
 src/Model/RequestHeaderModifications.php
 src/Model/RuleActionHeaderField.php
@@ -97,6 +100,7 @@ src/Model/RuleActionType.php
 src/Model/SDK.php
 src/Model/SearchEventsBot.php
 src/Model/SearchEventsIncrementalIdentificationStatus.php
+src/Model/SearchEventsRareDevicePercentileBucket.php
 src/Model/SearchEventsSdkPlatform.php
 src/Model/SearchEventsVpnConfidence.php
 src/Model/SupplementaryIDHighRecall.php
@@ -119,3 +123,5 @@ src/Sealed/Sealed.php
 src/Sealed/UnsealAggregateException.php
 src/Sealed/UnsealException.php
 src/Webhook/WebhookVerifier.php
+test/Model/RareDevicePercentileBucketTest.php
+test/Model/SearchEventsRareDevicePercentileBucketTest.php

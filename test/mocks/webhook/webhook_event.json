@@ -187,6 +187,8 @@
   },
   "replayed": false,
   "high_activity_device": false,
+  "rare_device": false,
+  "rare_device_percentile_bucket": "<p95",
   "raw_device_attributes": {
     "math": "5f030fa7d2e5f9f757bfaf81642eb1a6",
     "vendor": "Google Inc.",

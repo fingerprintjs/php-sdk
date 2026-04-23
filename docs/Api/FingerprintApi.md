@@ -168,7 +168,7 @@ try {
 [[Back to README]](../../README.md)
 
 # **searchEvents**
->  \Fingerprint\ServerSdk\Model\EventSearch searchEvents($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator)
+>  \Fingerprint\ServerSdk\Model\EventSearch searchEvents($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator)
 
 Search events
 
@@ -180,7 +180,12 @@ The `/v4/events` endpoint provides a convenient way to search for past events ba
 - Searching for events associated with a single `linked_id` within a time range to get all events associated with your internal account identifier.
 - Excluding all bot traffic from the query (`good` and `bad` bots)
 
-If you don't provide `start` or `end` parameters, the default search range is the **last 7 days**.
+By default, the API searches events from the last 7 days, sorts them by newest first and returns the last 10 events.
+
+- Use `start` and `end` to specify the time range of the search.
+- Use `reverse=true` to sort the results oldest first.
+- Use `limit` to specify the number of events to return.
+- Use `pagination_key` to get the next page of results if there are more than `limit` events.
 
 ### Filtering events with the `suspect` flag
 
@@ -216,7 +221,7 @@ $apiInstance = new FingerprintApi(
     new GuzzleHttp\Client()
 );
 
-$limit = 10; // int | Limit the number of events returned.
+$limit = 10; // int | Maximum number of events to return. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events.
 $pagination_key = 'pagination_key_example'; // string | Use `pagination_key` to get the next page of results.  When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The pagination key is an arbitrary string that should not be interpreted in any way and should be passed as-is. In the following request, use that value in the `pagination_key` parameter to get the next page of results:  1. First request, returning most recent 200 events: `GET api-base-url/events?limit=100` 2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=1740815825085`
 $visitor_id = 'visitor_id_example'; // string | Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property).
 $high_recall_id = 'high_recall_id_example'; // string | The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental.  Filter events by matching High Recall ID (`supplementary_id_high_recall.visitor_id` property).
@@ -228,9 +233,9 @@ $url = 'url_example'; // string | Filter events by the URL (`url` property) asso
 $bundle_id = 'bundle_id_example'; // string | Filter events by the Bundle ID (iOS) associated with the event.
 $package_name = 'package_name_example'; // string | Filter events by the Package Name (Android) associated with the event.
 $origin = 'origin_example'; // string | Filter events by the origin field of the event. This is applicable to web events only (e.g., https://example.com)
-$start = 56; // int | Filter events with a timestamp greater than the start time, in Unix time (milliseconds).
-$end = 56; // int | Filter events with a timestamp smaller than the end time, in Unix time (milliseconds).
-$reverse = True; // bool | Sort events in reverse timestamp order.
+$start = 1767225600000; // int | Include events that happened after this point (with timestamp greater than or equal the provided `start` Unix milliseconds value). Defaults to 7 days ago. Setting `start` does not change `end`'s default of `now` — adjust it separately if needed.
+$end = 1769903999000; // int | Include events that happened before this point (with timestamp less than or equal the provided `end` Unix milliseconds value). Defaults to now. Setting `end` does not change `start`'s default of `7 days ago` — adjust it separately if needed.
+$reverse = false; // bool | When `true`, sort events oldest first (ascending timestamp order). Default is newest first (descending timestamp order).
 $suspect = True; // bool | Filter events previously tagged as suspicious via the [Update API](https://docs.fingerprint.com/reference/server-api-v4-update-event). > Note: When using this parameter, only events with the `suspect` property explicitly set to `true` or `false` are returned. Events with undefined `suspect` property are left out of the response.
 $vpn = True; // bool | Filter events by VPN Detection result. > Note: When using this parameter, only events with the `vpn` property set to `true` or `false` are returned. Events without a `vpn` Smart Signal result are left out of the response.
 $virtual_machine = True; // bool | Filter events by Virtual Machine Detection result. > Note: When using this parameter, only events with the `virtual_machine` property set to `true` or `false` are returned. Events without a `virtual_machine` Smart Signal result are left out of the response.
@@ -249,6 +254,8 @@ $min_suspect_score = 3.4; // float | Filter events with Suspect Score result abo
 $developer_tools = True; // bool | Filter events by Developer Tools detection result. > Note: When using this parameter, only events with the `developer_tools` property set to `true` or `false` are returned. Events without a `developer_tools` Smart Signal result are left out of the response.
 $location_spoofing = True; // bool | Filter events by Location Spoofing detection result. > Note: When using this parameter, only events with the `location_spoofing` property set to `true` or `false` are returned. Events without a `location_spoofing` Smart Signal result are left out of the response.
 $mitm_attack = True; // bool | Filter events by MITM (Man-in-the-Middle) Attack detection result. > Note: When using this parameter, only events with the `mitm_attack` property set to `true` or `false` are returned. Events without a `mitm_attack` Smart Signal result are left out of the response.
+$rare_device = True; // bool | Filter events by Device Rarity detection result. > Note: When using this parameter, only events with the `rare_device` property set to `true` or `false` are returned. Events without a Device Rarity Smart Signal result are left out of the response.
+$rare_device_percentile_bucket = new \Fingerprint\ServerSdk\Model\\Fingerprint\ServerSdk\Model\SearchEventsRareDevicePercentileBucket(); // \Fingerprint\ServerSdk\Model\SearchEventsRareDevicePercentileBucket | Filter events by Device Rarity percentile bucket. `<p95` - device configuration is in the bottom 95% (most common). `p95-p99` - device is in the 95th to 99th percentile. `p99-p99.5` - device is in the 99th to 99.5th percentile. `p99.5-p99.9` - device is in the 99.5th to 99.9th percentile. `p99.9+` - device is in the top 0.1% (rarest). `not_seen` - device configuration has never been observed before.
 $proxy = True; // bool | Filter events by Proxy detection result. > Note: When using this parameter, only events with the `proxy` property set to `true` or `false` are returned. Events without a `proxy` Smart Signal result are left out of the response.
 $sdk_version = 'sdk_version_example'; // string | Filter events by a specific SDK version associated with the identification event (`sdk.version` property). Example: `3.11.14`
 $sdk_platform = \Fingerprint\ServerSdk\Model\SearchEventsSdkPlatform::JS; // \Fingerprint\ServerSdk\Model\SearchEventsSdkPlatform | Filter events by the SDK Platform associated with the identification event (`sdk.platform` property) . `js` - Javascript agent (Web). `ios` - Apple iOS based devices. `android` - Android based devices.
@@ -260,7 +267,7 @@ $incremental_identification_status = \Fingerprint\ServerSdk\Model\SearchEventsIn
 $simulator = True; // bool | Filter events by iOS Simulator Detection result.  > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response.
 
 try {
-    $result = $apiInstance->searchEvents($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator);
+    $result = $apiInstance->searchEvents($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator);
     var_dump($result);
 } catch (ApiException $e) {
     $errorDetails = $e->getErrorDetails()->getErrorDetails();
@@ -274,7 +281,7 @@ try {
 
 | Name | Type | Description | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **limit** | **int** | Limit the number of events returned. | [optional] [default to 10] |
+| **limit** | **int** | Maximum number of events to return. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events. | [optional] [default to 10] |
 | **pagination_key** | **string** | Use `pagination_key` to get the next page of results.  When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The pagination key is an arbitrary string that should not be interpreted in any way and should be passed as-is. In the following request, use that value in the `pagination_key` parameter to get the next page of results:  1. First request, returning most recent 200 events: `GET api-base-url/events?limit=100` 2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=1740815825085` | [optional] |
 | **visitor_id** | **string** | Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). | [optional] |
 | **high_recall_id** | **string** | The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental.  Filter events by matching High Recall ID (`supplementary_id_high_recall.visitor_id` property). | [optional] |
@@ -286,9 +293,9 @@ try {
 | **bundle_id** | **string** | Filter events by the Bundle ID (iOS) associated with the event. | [optional] |
 | **package_name** | **string** | Filter events by the Package Name (Android) associated with the event. | [optional] |
 | **origin** | **string** | Filter events by the origin field of the event. This is applicable to web events only (e.g., https://example.com) | [optional] |
-| **start** | **int** | Filter events with a timestamp greater than the start time, in Unix time (milliseconds). | [optional] |
-| **end** | **int** | Filter events with a timestamp smaller than the end time, in Unix time (milliseconds). | [optional] |
-| **reverse** | **bool** | Sort events in reverse timestamp order. | [optional] |
+| **start** | **int** | Include events that happened after this point (with timestamp greater than or equal the provided `start` Unix milliseconds value). Defaults to 7 days ago. Setting `start` does not change `end`'s default of `now` — adjust it separately if needed. | [optional] |
+| **end** | **int** | Include events that happened before this point (with timestamp less than or equal the provided `end` Unix milliseconds value). Defaults to now. Setting `end` does not change `start`'s default of `7 days ago` — adjust it separately if needed. | [optional] |
+| **reverse** | **bool** | When `true`, sort events oldest first (ascending timestamp order). Default is newest first (descending timestamp order). | [optional] [default to false] |
 | **suspect** | **bool** | Filter events previously tagged as suspicious via the [Update API](https://docs.fingerprint.com/reference/server-api-v4-update-event). > Note: When using this parameter, only events with the `suspect` property explicitly set to `true` or `false` are returned. Events with undefined `suspect` property are left out of the response. | [optional] |
 | **vpn** | **bool** | Filter events by VPN Detection result. > Note: When using this parameter, only events with the `vpn` property set to `true` or `false` are returned. Events without a `vpn` Smart Signal result are left out of the response. | [optional] |
 | **virtual_machine** | **bool** | Filter events by Virtual Machine Detection result. > Note: When using this parameter, only events with the `virtual_machine` property set to `true` or `false` are returned. Events without a `virtual_machine` Smart Signal result are left out of the response. | [optional] |
@@ -307,6 +314,8 @@ try {
 | **developer_tools** | **bool** | Filter events by Developer Tools detection result. > Note: When using this parameter, only events with the `developer_tools` property set to `true` or `false` are returned. Events without a `developer_tools` Smart Signal result are left out of the response. | [optional] |
 | **location_spoofing** | **bool** | Filter events by Location Spoofing detection result. > Note: When using this parameter, only events with the `location_spoofing` property set to `true` or `false` are returned. Events without a `location_spoofing` Smart Signal result are left out of the response. | [optional] |
 | **mitm_attack** | **bool** | Filter events by MITM (Man-in-the-Middle) Attack detection result. > Note: When using this parameter, only events with the `mitm_attack` property set to `true` or `false` are returned. Events without a `mitm_attack` Smart Signal result are left out of the response. | [optional] |
+| **rare_device** | **bool** | Filter events by Device Rarity detection result. > Note: When using this parameter, only events with the `rare_device` property set to `true` or `false` are returned. Events without a Device Rarity Smart Signal result are left out of the response. | [optional] |
+| **rare_device_percentile_bucket** | [**\Fingerprint\ServerSdk\Model\SearchEventsRareDevicePercentileBucket**](../Model/.md) | Filter events by Device Rarity percentile bucket. `<p95` - device configuration is in the bottom 95% (most common). `p95-p99` - device is in the 95th to 99th percentile. `p99-p99.5` - device is in the 99th to 99.5th percentile. `p99.5-p99.9` - device is in the 99.5th to 99.9th percentile. `p99.9+` - device is in the top 0.1% (rarest). `not_seen` - device configuration has never been observed before. | [optional] |
 | **proxy** | **bool** | Filter events by Proxy detection result. > Note: When using this parameter, only events with the `proxy` property set to `true` or `false` are returned. Events without a `proxy` Smart Signal result are left out of the response. | [optional] |
 | **sdk_version** | **string** | Filter events by a specific SDK version associated with the identification event (`sdk.version` property). Example: `3.11.14` | [optional] |
 | **sdk_platform** | [**\Fingerprint\ServerSdk\Model\SearchEventsSdkPlatform**](../Model/.md) | Filter events by the SDK Platform associated with the identification event (`sdk.platform` property) . `js` - Javascript agent (Web). `ios` - Apple iOS based devices. `android` - Android based devices. | [optional] |

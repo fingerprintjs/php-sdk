@@ -88,6 +88,10 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
         'plugins' => '\Fingerprint\ServerSdk\Model\PluginsInner[]',
         'indexed_db' => 'bool',
         'math' => 'string',
+        'device_model' => 'string',
+        'device_manufacturer' => 'string',
+        'font_hash' => 'string',
+        'timezone_offset' => 'string',
     ];
 
     /**
@@ -125,6 +129,10 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
         'plugins' => null,
         'indexed_db' => null,
         'math' => null,
+        'device_model' => null,
+        'device_manufacturer' => null,
+        'font_hash' => null,
+        'timezone_offset' => null,
     ];
 
     /**
@@ -158,6 +166,10 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
         'plugins' => false,
         'indexed_db' => false,
         'math' => false,
+        'device_model' => false,
+        'device_manufacturer' => false,
+        'font_hash' => false,
+        'timezone_offset' => false,
     ];
 
     /**
@@ -199,6 +211,10 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
         'plugins' => 'plugins',
         'indexed_db' => 'indexed_db',
         'math' => 'math',
+        'device_model' => 'device_model',
+        'device_manufacturer' => 'device_manufacturer',
+        'font_hash' => 'font_hash',
+        'timezone_offset' => 'timezone_offset',
     ];
 
     /**
@@ -232,6 +248,10 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
         'plugins' => 'setPlugins',
         'indexed_db' => 'setIndexedDb',
         'math' => 'setMath',
+        'device_model' => 'setDeviceModel',
+        'device_manufacturer' => 'setDeviceManufacturer',
+        'font_hash' => 'setFontHash',
+        'timezone_offset' => 'setTimezoneOffset',
     ];
 
     /**
@@ -265,6 +285,10 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
         'plugins' => 'getPlugins',
         'indexed_db' => 'getIndexedDb',
         'math' => 'getMath',
+        'device_model' => 'getDeviceModel',
+        'device_manufacturer' => 'getDeviceManufacturer',
+        'font_hash' => 'getFontHash',
+        'timezone_offset' => 'getTimezoneOffset',
     ];
 
     /**
@@ -307,6 +331,10 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
         $this->setIfExists('plugins', $data ?? [], null);
         $this->setIfExists('indexed_db', $data ?? [], null);
         $this->setIfExists('math', $data ?? [], null);
+        $this->setIfExists('device_model', $data ?? [], null);
+        $this->setIfExists('device_manufacturer', $data ?? [], null);
+        $this->setIfExists('font_hash', $data ?? [], null);
+        $this->setIfExists('timezone_offset', $data ?? [], null);
     }
 
     /**
@@ -412,10 +440,6 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
 
         if (!is_null($this->container['screen_resolution']) && (count($this->container['screen_resolution']) < 2)) {
             $invalidProperties[] = "invalid value for 'screen_resolution', number of items must be greater than or equal to 2.";
-        }
-
-        if (!is_null($this->container['hardware_concurrency']) && ($this->container['hardware_concurrency'] < 1)) {
-            $invalidProperties[] = "invalid value for 'hardware_concurrency', must be bigger than or equal to 1.";
         }
 
         return $invalidProperties;
@@ -582,7 +606,7 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
     /**
      * Sets languages.
      *
-     * @param string[][] $languages Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs.
+     * @param string[][] $languages Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. Available for both browsers and iOS devices
      *
      */
     public function setLanguages(array $languages): self
@@ -649,7 +673,7 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
     /**
      * Sets screen_resolution.
      *
-     * @param int[] $screen_resolution current screen resolution
+     * @param int[] $screen_resolution Current screen resolution. Available for both browsers and iOS devices
      *
      */
     public function setScreenResolution(array $screen_resolution): self
@@ -770,10 +794,6 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
      */
     public function setHardwareConcurrency(int $hardware_concurrency): self
     {
-        if ($hardware_concurrency < 1) {
-            throw new \InvalidArgumentException('invalid value for $hardware_concurrency when calling RawDeviceAttributes., must be bigger than or equal to 1.');
-        }
-
         $this->container['hardware_concurrency'] = $hardware_concurrency;
 
         return $this;
@@ -996,6 +1016,94 @@ class RawDeviceAttributes implements ModelInterface, \ArrayAccess, \JsonSerializ
     public function setMath(string $math): self
     {
         $this->container['math'] = $math;
+
+        return $this;
+    }
+
+    /**
+     * Gets device_model.
+     *
+     */
+    public function getDeviceModel(): ?string
+    {
+        return $this->container['device_model'];
+    }
+
+    /**
+     * Sets device_model.
+     *
+     * @param string $device_model Device model string. Available only for Android and iOS devices.
+     *
+     */
+    public function setDeviceModel(string $device_model): self
+    {
+        $this->container['device_model'] = $device_model;
+
+        return $this;
+    }
+
+    /**
+     * Gets device_manufacturer.
+     *
+     */
+    public function getDeviceManufacturer(): ?string
+    {
+        return $this->container['device_manufacturer'];
+    }
+
+    /**
+     * Sets device_manufacturer.
+     *
+     * @param string $device_manufacturer Device manufacturer string. Available only for Android and iOS devices.
+     *
+     */
+    public function setDeviceManufacturer(string $device_manufacturer): self
+    {
+        $this->container['device_manufacturer'] = $device_manufacturer;
+
+        return $this;
+    }
+
+    /**
+     * Gets font_hash.
+     *
+     */
+    public function getFontHash(): ?string
+    {
+        return $this->container['font_hash'];
+    }
+
+    /**
+     * Sets font_hash.
+     *
+     * @param string $font_hash unique identifier for the user’s installed fonts
+     *
+     */
+    public function setFontHash(string $font_hash): self
+    {
+        $this->container['font_hash'] = $font_hash;
+
+        return $this;
+    }
+
+    /**
+     * Gets timezone_offset.
+     *
+     */
+    public function getTimezoneOffset(): ?string
+    {
+        return $this->container['timezone_offset'];
+    }
+
+    /**
+     * Sets timezone_offset.
+     *
+     * @param string $timezone_offset UTC offset in \"±HH:MM\" format derived from the detected IANA timezone
+     *
+     */
+    public function setTimezoneOffset(string $timezone_offset): self
+    {
+        $this->container['timezone_offset'] = $timezone_offset;
 
         return $this;
     }
