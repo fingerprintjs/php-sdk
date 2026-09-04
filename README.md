@@ -334,6 +334,13 @@ composer install
 ./vendor/bin/phpunit
 ```
 
+## Version support
+
+| SDK major version | Server API version | Status | End of support |
+|---|---|---|---|
+| v7.x (current) | [v4](https://docs.fingerprint.com/reference/server-api) | Supported | - |
+| v1.x-v6.x | [v3](https://docs.fingerprint.com/reference/v3/server-api) | Deprecated (security fixes only). See the [migration guide](https://docs.fingerprint.com/reference/php-server-sdk#migration-guide-for-php-sdk-v7). | To be decided |
+
 ## Support
 
 To report problems, ask questions or provide feedback, please use [Issues](https://github.com/fingerprintjs/php-sdk/issues).
