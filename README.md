@@ -239,6 +239,7 @@ if(!$isValidWebhookSign) {
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*FingerprintApi* | [**analyzeRequestForAutomationIntelligence**](docs/Api/FingerprintApi.md#analyzerequestforautomationintelligence) | **POST** /edge | Collect Automation Intelligence.
 *FingerprintApi* | [**deleteVisitorData**](docs/Api/FingerprintApi.md#deletevisitordata) | **DELETE** /visitors/{visitor_id} | Delete a visitor ID
 *FingerprintApi* | [**getEvent**](docs/Api/FingerprintApi.md#getevent) | **GET** /events/{event_id} | Get an event by event ID
 *FingerprintApi* | [**searchEvents**](docs/Api/FingerprintApi.md#searchevents) | **GET** /events | Search events
@@ -254,11 +255,14 @@ Class | Method | HTTP request | Description
  - [BotResult](docs/Model/BotResult.md)
  - [BrowserDetails](docs/Model/BrowserDetails.md)
  - [Canvas](docs/Model/Canvas.md)
+ - [EdgeRequest](docs/Model/EdgeRequest.md)
+ - [EdgeRequestHeadersInner](docs/Model/EdgeRequestHeadersInner.md)
  - [Emoji](docs/Model/Emoji.md)
  - [Error](docs/Model/Error.md)
  - [ErrorCode](docs/Model/ErrorCode.md)
  - [ErrorResponse](docs/Model/ErrorResponse.md)
  - [Event](docs/Model/Event.md)
+ - [EventEdge](docs/Model/EventEdge.md)
  - [EventRuleAction](docs/Model/EventRuleAction.md)
  - [EventRuleActionAllow](docs/Model/EventRuleActionAllow.md)
  - [EventRuleActionBlock](docs/Model/EventRuleActionBlock.md)

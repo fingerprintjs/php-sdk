@@ -37,6 +37,97 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /edge:
+    post:
+      tags:
+        - Fingerprint
+      operationId: analyzeRequestForAutomationIntelligence
+      summary: Collect Automation Intelligence.
+      description: >
+        The Automation Intelligence API gives you the tools to determine whether
+        traffic is legitimate and should be accepted by your application.
+
+
+        This feature is currently in a Public Preview testing phase. All
+        feedback is welcome! If you encounter any issues, please [contact our
+        support team](https://fingerprint.com/support/).
+
+
+        The API detects automation tools like AI Agents, AI Assistants, AI
+        Browsers, and other bots. Additionally, it provides IP intelligence like
+        geolocation, residential proxy, VPN and data center detection.
+
+
+        Automation Intelligence is derived from HTTP request metadata that
+        reaches your server. It does not require the use of a JavaScript
+        client-side agent or mobile SDKs to collect device context.
+
+
+        The API is fast, with average response times of less than 30ms, making
+        it a great fit for edge, pre-origin or middleware contexts. The API is
+        platform-agnostic and can be used with different CDN providers, cloud
+        platforms, or any server backend.
+
+
+        Because this API doesn’t require the use of a client-side device
+        collection agent, it doesn’t support device identification via
+        `visitor_id` and a few Smart Signals derived from deep device telemetry.
+
+
+        ### Event Retrieval
+
+
+        Events created by the Automation Intelligence API can be fetched via the
+        [`/v4/events/{event_id}`](https://docs.fingerprint.com/reference/server-api-get-event)
+        API using the `event_id` present in the API response.
+
+
+        Fetch all Automation Intelligence API events via the
+        [`/v4/events?source=edge`](https://docs.fingerprint.com/reference/server-api-search-events#parameter-source)
+        API.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EdgeRequest'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventEdge'
+        '400':
+          description: Bad request. The request payload is not valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden. Access to this API is denied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Bad request. The request payload is too large.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests. The request is throttled.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Workspace error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /events/{event_id}:
     get:
       tags:
@@ -44,12 +135,15 @@ paths:
       operationId: getEvent
       summary: Get an event by event ID
       description: >
-        Get a detailed analysis of an individual identification event, including
-        Smart Signals.
+        Get a detailed analysis of an individual event, including Smart Signals.
 
 
         Use `event_id` as the URL path parameter. This API method is scoped to a
         request, i.e. all returned information is by `event_id`.
+
+
+        Use `source` to tell identification events (`device`) from Automation
+        Intelligence events (`edge`).
       parameters:
         - name: event_id
           in: path
@@ -61,7 +155,7 @@ paths:
             example: 1708102555327.NLOjmg
           description: >-
             The unique
-            [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id)
+            [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id)
             of each identification request (`requestId` can be used in its
             place).
         - name: ruleset_id
@@ -165,7 +259,7 @@ paths:
             example: 1708102555327.NLOjmg
           description: >-
             The unique event
-            [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id).
+            [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id).
       requestBody:
         required: true
         content:
@@ -317,7 +411,7 @@ paths:
             example: Ibk1527CUFmcnjLwIs4A9
           description: >
             Unique [visitor
-            identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id)
+            identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id)
             issued by Fingerprint Identification and all active Smart Signals.
 
 
@@ -492,7 +586,7 @@ paths:
 
 
             You can use [linked
-            Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid)
+            Ids](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid)
             to associate identification requests with your own identifier, for
             example, session Id, purchase Id, or transaction Id. You can then
             use this `linked_id` parameter to retrieve all events associated
@@ -940,6 +1034,18 @@ paths:
             > Note: When using this parameter, only events with the `simulator`
             property set to `true` or `false` are returned. Events without a
             `simulator` Smart Signal result are left out of the response.
+        - name: active_call
+          in: query
+          schema:
+            type: boolean
+          description: >
+            Filter events by Active Call Detection result on mobile devices.
+
+
+            > Note: When using this parameter, only events with the
+            `active_call` property set to `true` or `false` are returned. Events
+            without an `active_call` Smart Signal result are left out of the
+            response.
         - name: source
           in: query
           required: false
@@ -963,18 +1069,6 @@ paths:
             > Note: The Automation Intelligence API is in public preview testing
             phase.  If you encounter any issues, please
             [contact](https://fingerprint.com/support/) our support team.
-        - name: active_call
-          in: query
-          schema:
-            type: boolean
-          description: >
-            Filter events by Active Call Detection result on mobile devices.
-
-
-            > Note: When using this parameter, only events with the
-            `active_call` property set to `true` or `false` are returned. Events
-            without an `active_call` Smart Signal result are left out of the
-            response.
       responses:
         '200':
           description: Events matching the filter(s).
@@ -1110,7 +1204,7 @@ paths:
             example: Ibk1527CUFmcnjLwIs4A9
           description: >-
             The [visitor
-            ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id)
+            ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id)
             you want to delete.
       responses:
         '200':
@@ -1163,6 +1257,138 @@ components:
         identification request or updated later.
       additionalProperties: true
       required: []
+    EdgeRequest:
+      type: object
+      description: >-
+        HTTP request metadata (including the HTTP method, headers and IP
+        address) sent by you (your server) to the Fingerprint API for IP and bot
+        analysis. To improve accuracy, retain as much of the original semantics
+        of the HTTP request as possible. For example, preserve the order of the
+        request headers and their capitalization.
+
+        At least one of `ipv4_address` or `ipv6_address` must be provided; a
+        request with neither is rejected with a `400` error. If both IPv4 and
+        IPv6 are provided, IP intelligence will be provided for each address. If
+        an IPv4-mapped IPv6 address is provided in the `ipv6_address` request
+        property, the IP intelligence will be provided in the `ipv4_address`
+        property of the response.
+      example:
+        method: GET
+        url: https://example.com/login
+        ipv4_address: 34.162.244.71
+        headers:
+          - name: Host
+            value: example.com
+          - name: User-Agent
+            value: Mozilla/5.0
+          - name: Authorization
+            value: ''
+      required:
+        - headers
+        - method
+        - url
+      properties:
+        headers:
+          type: array
+          description: >
+            Ordered header entries from the request made to your server. Each
+            entry represents one header line. If one header name appears as
+            multiple lines, send each as a separate item in the array.
+
+
+            Headers that contain authentication or session data must still be
+            included, but with their value set to an empty string. This includes
+            headers like `Authorization` and `Cookie`, but may contain more
+            depending on your specific project, for instance
+            `Proxy-Authenticate` or `X-Api-Key`. Omitting the headers entirely
+            changes the shape of the request and can affect detection. Never
+            forward the real secret values.
+
+
+            Whenever possible, we recommend preserving header order and
+            capitalization to provide the best accuracy, however it’s not a
+            strict requirement if your runtime does not maintain http header
+            order or canonicalizes header names.
+          minItems: 1
+          items:
+            type: object
+            required:
+              - name
+              - value
+            properties:
+              name:
+                type: string
+                examples:
+                  - User-Agent
+                description: >-
+                  Header name as forwarded by your server. Headers must be valid
+                  according to RFC 7230 and will be canonicalized according to
+                  RFC 9112.
+              value:
+                type: string
+                examples:
+                  - Mozilla/5.0
+                description: >-
+                  Value of a single forwarded header entry. Be careful to
+                  preserve the original encoding and escaping. For example, do
+                  not double escape quotes.
+          examples:
+            - - name: Host
+                value: example.com
+              - name: User-Agent
+                value: Mozilla/5.0
+              - name: Accept-Language
+                value: en-US,en;q=0.9
+            - - name: Host
+                value: example.com
+              - name: User-Agent
+                value: Mozilla/5.0
+              - name: Accept-Encoding
+                value: gzip
+              - name: Accept-Encoding
+                value: deflate
+        method:
+          type: string
+          description: >-
+            The original HTTP method of the request. If supported in your
+            runtime, preserve the original casing.
+          examples:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+        url:
+          type: string
+          description: >-
+            Absolute URL of the request, without a \#fragment suffix. Only HTTP
+            and HTTPS schemes are supported.
+          format: uri
+          examples:
+            - http://example.com
+            - https://example.com/checkout?method=card
+        ipv4_address:
+          type: string
+          description: Client IPv4 address observed by your server.
+          format: ipv4
+          examples:
+            - 34.162.244.71
+            - 3.208.0.3
+            - 173.56.0.4
+        ipv6_address:
+          type: string
+          description: Client IPv6 address observed by your server.
+          format: ipv6
+          examples:
+            - 2001:4860:4801:10::1
+            - 2600:1f42:abcd:5678:9876:fedc:1357:2468
+            - 2001:4868:85f:1a2b:3c4d:5e6f:7890:abcd
+            - ::ffff:22a2:f447
+            - ::ffff:34.162.244.71
+        linked_id:
+          $ref: '#/components/schemas/LinkedId'
+        tags:
+          $ref: '#/components/schemas/Tags'
     EventId:
       type: string
       examples:
@@ -1176,19 +1402,6 @@ components:
       format: int64
       examples:
         - 1708102555327
-    EventSource:
-      type: string
-      description: >
-        Identifies how the event was generated.
-
-        - `device` - the event was generated by the JS agent or a mobile SDK
-        running on an end-user device.
-
-        - `edge` - the event was generated by the Automation Intelligence API
-        (`/edge` endpoint), analyzing a request intercepted at the edge.
-      enum:
-        - device
-        - edge
     Url:
       type: string
       examples:
@@ -1596,6 +1809,78 @@ components:
           description: >
             `true` if the request came from a device running a VPN, `false`
             otherwise.  
+    EventSource:
+      type: string
+      description: >
+        Identifies how the event was generated.
+
+        - `device` - the event was generated by the JS agent or a mobile SDK
+        running on an end-user device.
+
+        - `edge` - the event was generated by the Automation Intelligence API
+        (`/edge` endpoint), analyzing a request intercepted at the edge.
+      enum:
+        - device
+        - edge
+    EventEdge:
+      type: object
+      description: >
+        IP and bot analysis for an event generated by the Automation
+        Intelligence API (`/edge` endpoint). No client-side collection agent is
+        involved, so Identification (`visitor_id`) and device-telemetry-derived
+        Smart Signals are not available.
+      properties:
+        event_id:
+          $ref: '#/components/schemas/EventId'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        timestamp:
+          $ref: '#/components/schemas/Timestamp'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        linked_id:
+          $ref: '#/components/schemas/LinkedId'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        tags:
+          $ref: '#/components/schemas/Tags'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        url:
+          $ref: '#/components/schemas/Url'
+        bot_info:
+          $ref: '#/components/schemas/BotInfo'
+        ip_info:
+          $ref: '#/components/schemas/IPInfo'
+        proxy:
+          $ref: '#/components/schemas/Proxy'
+        proxy_confidence:
+          $ref: '#/components/schemas/ProxyConfidence'
+        proxy_details:
+          $ref: '#/components/schemas/ProxyDetails'
+        vpn:
+          $ref: '#/components/schemas/Vpn'
+        vpn_confidence:
+          $ref: '#/components/schemas/VpnConfidence'
+        vpn_methods:
+          $ref: '#/components/schemas/VpnMethods'
+        source:
+          allOf:
+            - $ref: '#/components/schemas/EventSource'
+            - const: edge
+      required:
+        - event_id
+        - timestamp
+        - source
+        - ip_info
     ErrorCode:
       type: string
       enum:
@@ -1715,7 +2000,7 @@ components:
       description: >-
         Field is `true` if you have previously set the `suspect` flag for this
         event using the [Server API Update event
-        endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event).
+        endpoint](https://docs.fingerprint.com/reference/server-api-update-event).
     Integration:
       type: object
       required: []
@@ -3084,16 +3369,18 @@ components:
         team](https://fingerprint.com/support/).
     Event:
       type: object
-      description: >-
-        Contains results from Fingerprint Identification and all active Smart
-        Signals. Some Smart Signals are only supported for certain device types,
-        these fields will be omitted for events not generated from the supported
-        devices. Consult the [Smart Signals
+      description: >
+        An identification event (`source: device`) or an Automation Intelligence
+        event (`source: edge`).
+
+
+        Use `source` to tell them apart. Device events include Identification
+        and device-derived Smart Signals. Edge events do not.
+
+
+        Consult the [Smart Signals
         reference](https://docs.fingerprint.com/docs/smart-signals-reference)
         for more details.
-      required:
-        - event_id
-        - timestamp
       properties:
         event_id:
           $ref: '#/components/schemas/EventId'
@@ -3107,6 +3394,68 @@ components:
             - android
             - ios
             - browser
+        linked_id:
+          $ref: '#/components/schemas/LinkedId'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        tags:
+          $ref: '#/components/schemas/Tags'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        url:
+          $ref: '#/components/schemas/Url'
+          x-platforms:
+            - browser
+        bot_info:
+          $ref: '#/components/schemas/BotInfo'
+          x-platforms:
+            - browser
+        ip_info:
+          $ref: '#/components/schemas/IPInfo'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        proxy:
+          $ref: '#/components/schemas/Proxy'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        proxy_confidence:
+          $ref: '#/components/schemas/ProxyConfidence'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        proxy_details:
+          $ref: '#/components/schemas/ProxyDetails'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        vpn:
+          $ref: '#/components/schemas/Vpn'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        vpn_confidence:
+          $ref: '#/components/schemas/VpnConfidence'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        vpn_methods:
+          $ref: '#/components/schemas/VpnMethods'
+          x-platforms:
+            - android
+            - ios
+            - browser
         source:
           $ref: '#/components/schemas/EventSource'
           x-platforms:
@@ -3116,12 +3465,6 @@ components:
         incremental_identification_status:
           $ref: '#/components/schemas/IncrementalIdentificationStatus'
           x-platforms:
-            - browser
-        linked_id:
-          $ref: '#/components/schemas/LinkedId'
-          x-platforms:
-            - android
-            - ios
             - browser
         environment_id:
           $ref: '#/components/schemas/EnvironmentId'
@@ -3158,16 +3501,6 @@ components:
           x-platforms:
             - android
             - ios
-            - browser
-        tags:
-          $ref: '#/components/schemas/Tags'
-          x-platforms:
-            - android
-            - ios
-            - browser
-        url:
-          $ref: '#/components/schemas/Url'
-          x-platforms:
             - browser
         bundle_id:
           $ref: '#/components/schemas/BundleId'
@@ -3234,10 +3567,6 @@ components:
           $ref: '#/components/schemas/BotType'
           x-platforms:
             - browser
-        bot_info:
-          $ref: '#/components/schemas/BotInfo'
-          x-platforms:
-            - browser
         cloned_app:
           $ref: '#/components/schemas/ClonedApp'
           x-platforms:
@@ -3264,30 +3593,6 @@ components:
             - ios
         ip_blocklist:
           $ref: '#/components/schemas/IPBlockList'
-          x-platforms:
-            - android
-            - ios
-            - browser
-        ip_info:
-          $ref: '#/components/schemas/IPInfo'
-          x-platforms:
-            - android
-            - ios
-            - browser
-        proxy:
-          $ref: '#/components/schemas/Proxy'
-          x-platforms:
-            - android
-            - ios
-            - browser
-        proxy_confidence:
-          $ref: '#/components/schemas/ProxyConfidence'
-          x-platforms:
-            - android
-            - ios
-            - browser
-        proxy_details:
-          $ref: '#/components/schemas/ProxyDetails'
           x-platforms:
             - android
             - ios
@@ -3372,18 +3677,6 @@ components:
           $ref: '#/components/schemas/VirtualMachineMLScore'
           x-platforms:
             - browser
-        vpn:
-          $ref: '#/components/schemas/Vpn'
-          x-platforms:
-            - android
-            - ios
-            - browser
-        vpn_confidence:
-          $ref: '#/components/schemas/VpnConfidence'
-          x-platforms:
-            - android
-            - ios
-            - browser
         vpn_ml_score:
           $ref: '#/components/schemas/VpnMLScore'
           x-platforms:
@@ -3399,12 +3692,6 @@ components:
           x-platforms:
             - android
             - ios
-        vpn_methods:
-          $ref: '#/components/schemas/VpnMethods'
-          x-platforms:
-            - android
-            - ios
-            - browser
         high_activity_device:
           $ref: '#/components/schemas/HighActivity'
           x-platforms:
@@ -3431,6 +3718,9 @@ components:
             - browser
             - ios
             - android
+      required:
+        - event_id
+        - timestamp
     EventUpdate:
       type: object
       required: []

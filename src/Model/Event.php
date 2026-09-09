@@ -32,11 +32,15 @@ namespace Fingerprint\ServerSdk\Model;
 use Fingerprint\ServerSdk\ObjectSerializer;
 
 /**
- * Contains results from Fingerprint Identification and all active Smart Signals. Some Smart Signals are only supported for certain device types, these fields will be omitted for events not generated from the supported devices. Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details.
+ * An identification event (`source: device`) or an Automation Intelligence event (`source: edge`).
+ *
+ * Use `source` to tell them apart. Device events include Identification and device-derived Smart Signals. Edge events do not.
+ *
+ * Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details.
  *
  * @category Class
  *
- * @description Contains results from Fingerprint Identification and all active Smart Signals. Some Smart Signals are only supported for certain device types, these fields will be omitted for events not generated from the supported devices. Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details.
+ * @description An identification event (&#x60;source: device&#x60;) or an Automation Intelligence event (&#x60;source: edge&#x60;).  Use &#x60;source&#x60; to tell them apart. Device events include Identification and device-derived Smart Signals. Edge events do not.  Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details.
  *
  * @author   Fingerprint
  *
@@ -65,17 +69,25 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     protected static array $openAPITypes = [
         'event_id' => 'string',
         'timestamp' => 'int',
+        'linked_id' => 'string',
+        'tags' => 'array<string,mixed>',
+        'url' => 'string',
+        'bot_info' => '\Fingerprint\ServerSdk\Model\BotInfo',
+        'ip_info' => '\Fingerprint\ServerSdk\Model\IPInfo',
+        'proxy' => 'bool',
+        'proxy_confidence' => '\Fingerprint\ServerSdk\Model\ProxyConfidence',
+        'proxy_details' => '\Fingerprint\ServerSdk\Model\ProxyDetails',
+        'vpn' => 'bool',
+        'vpn_confidence' => '\Fingerprint\ServerSdk\Model\VpnConfidence',
+        'vpn_methods' => '\Fingerprint\ServerSdk\Model\VpnMethods',
         'source' => '\Fingerprint\ServerSdk\Model\EventSource',
         'incremental_identification_status' => '\Fingerprint\ServerSdk\Model\IncrementalIdentificationStatus',
-        'linked_id' => 'string',
         'environment_id' => 'string',
         'suspect' => 'bool',
         'sdk' => '\Fingerprint\ServerSdk\Model\SDK',
         'replayed' => 'bool',
         'identification' => '\Fingerprint\ServerSdk\Model\Identification',
         'supplementary_id_high_recall' => '\Fingerprint\ServerSdk\Model\SupplementaryIDHighRecall',
-        'tags' => 'array<string,mixed>',
-        'url' => 'string',
         'bundle_id' => 'string',
         'package_name' => 'string',
         'ip_address' => 'string',
@@ -89,17 +101,12 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'active_call' => 'bool',
         'bot' => '\Fingerprint\ServerSdk\Model\BotResult',
         'bot_type' => 'string',
-        'bot_info' => '\Fingerprint\ServerSdk\Model\BotInfo',
         'cloned_app' => 'bool',
         'developer_tools' => 'bool',
         'emulator' => 'bool',
         'factory_reset_timestamp' => 'int',
         'frida' => 'bool',
         'ip_blocklist' => '\Fingerprint\ServerSdk\Model\IPBlockList',
-        'ip_info' => '\Fingerprint\ServerSdk\Model\IPInfo',
-        'proxy' => 'bool',
-        'proxy_confidence' => '\Fingerprint\ServerSdk\Model\ProxyConfidence',
-        'proxy_details' => '\Fingerprint\ServerSdk\Model\ProxyDetails',
         'proxy_ml_score' => 'float',
         'incognito' => 'bool',
         'jailbroken' => 'bool',
@@ -117,12 +124,9 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'velocity' => '\Fingerprint\ServerSdk\Model\Velocity',
         'virtual_machine' => 'bool',
         'virtual_machine_ml_score' => 'float',
-        'vpn' => 'bool',
-        'vpn_confidence' => '\Fingerprint\ServerSdk\Model\VpnConfidence',
         'vpn_ml_score' => 'float',
         'vpn_origin_timezone' => 'string',
         'vpn_origin_country' => 'string',
-        'vpn_methods' => '\Fingerprint\ServerSdk\Model\VpnMethods',
         'high_activity_device' => 'bool',
         'rare_device' => 'bool',
         'rare_device_percentile_bucket' => '\Fingerprint\ServerSdk\Model\RareDevicePercentileBucket',
@@ -142,17 +146,25 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     protected static array $openAPIFormats = [
         'event_id' => null,
         'timestamp' => 'int64',
+        'linked_id' => null,
+        'tags' => null,
+        'url' => null,
+        'bot_info' => null,
+        'ip_info' => null,
+        'proxy' => null,
+        'proxy_confidence' => null,
+        'proxy_details' => null,
+        'vpn' => null,
+        'vpn_confidence' => null,
+        'vpn_methods' => null,
         'source' => null,
         'incremental_identification_status' => null,
-        'linked_id' => null,
         'environment_id' => null,
         'suspect' => null,
         'sdk' => null,
         'replayed' => null,
         'identification' => null,
         'supplementary_id_high_recall' => null,
-        'tags' => null,
-        'url' => null,
         'bundle_id' => null,
         'package_name' => null,
         'ip_address' => null,
@@ -166,17 +178,12 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'active_call' => null,
         'bot' => null,
         'bot_type' => null,
-        'bot_info' => null,
         'cloned_app' => null,
         'developer_tools' => null,
         'emulator' => null,
         'factory_reset_timestamp' => 'int64',
         'frida' => null,
         'ip_blocklist' => null,
-        'ip_info' => null,
-        'proxy' => null,
-        'proxy_confidence' => null,
-        'proxy_details' => null,
         'proxy_ml_score' => 'double',
         'incognito' => null,
         'jailbroken' => null,
@@ -194,12 +201,9 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'velocity' => null,
         'virtual_machine' => null,
         'virtual_machine_ml_score' => 'double',
-        'vpn' => null,
-        'vpn_confidence' => null,
         'vpn_ml_score' => 'double',
         'vpn_origin_timezone' => null,
         'vpn_origin_country' => null,
-        'vpn_methods' => null,
         'high_activity_device' => null,
         'rare_device' => null,
         'rare_device_percentile_bucket' => null,
@@ -215,17 +219,25 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     protected static array $openAPINullables = [
         'event_id' => false,
         'timestamp' => false,
+        'linked_id' => false,
+        'tags' => false,
+        'url' => false,
+        'bot_info' => false,
+        'ip_info' => false,
+        'proxy' => false,
+        'proxy_confidence' => false,
+        'proxy_details' => false,
+        'vpn' => false,
+        'vpn_confidence' => false,
+        'vpn_methods' => false,
         'source' => false,
         'incremental_identification_status' => false,
-        'linked_id' => false,
         'environment_id' => false,
         'suspect' => false,
         'sdk' => false,
         'replayed' => false,
         'identification' => false,
         'supplementary_id_high_recall' => false,
-        'tags' => false,
-        'url' => false,
         'bundle_id' => false,
         'package_name' => false,
         'ip_address' => false,
@@ -239,17 +251,12 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'active_call' => false,
         'bot' => false,
         'bot_type' => false,
-        'bot_info' => false,
         'cloned_app' => false,
         'developer_tools' => false,
         'emulator' => false,
         'factory_reset_timestamp' => false,
         'frida' => false,
         'ip_blocklist' => false,
-        'ip_info' => false,
-        'proxy' => false,
-        'proxy_confidence' => false,
-        'proxy_details' => false,
         'proxy_ml_score' => false,
         'incognito' => false,
         'jailbroken' => false,
@@ -267,12 +274,9 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'velocity' => false,
         'virtual_machine' => false,
         'virtual_machine_ml_score' => false,
-        'vpn' => false,
-        'vpn_confidence' => false,
         'vpn_ml_score' => false,
         'vpn_origin_timezone' => false,
         'vpn_origin_country' => false,
-        'vpn_methods' => false,
         'high_activity_device' => false,
         'rare_device' => false,
         'rare_device_percentile_bucket' => false,
@@ -296,17 +300,25 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     protected static array $attributeMap = [
         'event_id' => 'event_id',
         'timestamp' => 'timestamp',
+        'linked_id' => 'linked_id',
+        'tags' => 'tags',
+        'url' => 'url',
+        'bot_info' => 'bot_info',
+        'ip_info' => 'ip_info',
+        'proxy' => 'proxy',
+        'proxy_confidence' => 'proxy_confidence',
+        'proxy_details' => 'proxy_details',
+        'vpn' => 'vpn',
+        'vpn_confidence' => 'vpn_confidence',
+        'vpn_methods' => 'vpn_methods',
         'source' => 'source',
         'incremental_identification_status' => 'incremental_identification_status',
-        'linked_id' => 'linked_id',
         'environment_id' => 'environment_id',
         'suspect' => 'suspect',
         'sdk' => 'sdk',
         'replayed' => 'replayed',
         'identification' => 'identification',
         'supplementary_id_high_recall' => 'supplementary_id_high_recall',
-        'tags' => 'tags',
-        'url' => 'url',
         'bundle_id' => 'bundle_id',
         'package_name' => 'package_name',
         'ip_address' => 'ip_address',
@@ -320,17 +332,12 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'active_call' => 'active_call',
         'bot' => 'bot',
         'bot_type' => 'bot_type',
-        'bot_info' => 'bot_info',
         'cloned_app' => 'cloned_app',
         'developer_tools' => 'developer_tools',
         'emulator' => 'emulator',
         'factory_reset_timestamp' => 'factory_reset_timestamp',
         'frida' => 'frida',
         'ip_blocklist' => 'ip_blocklist',
-        'ip_info' => 'ip_info',
-        'proxy' => 'proxy',
-        'proxy_confidence' => 'proxy_confidence',
-        'proxy_details' => 'proxy_details',
         'proxy_ml_score' => 'proxy_ml_score',
         'incognito' => 'incognito',
         'jailbroken' => 'jailbroken',
@@ -348,12 +355,9 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'velocity' => 'velocity',
         'virtual_machine' => 'virtual_machine',
         'virtual_machine_ml_score' => 'virtual_machine_ml_score',
-        'vpn' => 'vpn',
-        'vpn_confidence' => 'vpn_confidence',
         'vpn_ml_score' => 'vpn_ml_score',
         'vpn_origin_timezone' => 'vpn_origin_timezone',
         'vpn_origin_country' => 'vpn_origin_country',
-        'vpn_methods' => 'vpn_methods',
         'high_activity_device' => 'high_activity_device',
         'rare_device' => 'rare_device',
         'rare_device_percentile_bucket' => 'rare_device_percentile_bucket',
@@ -369,17 +373,25 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     protected static array $setters = [
         'event_id' => 'setEventId',
         'timestamp' => 'setTimestamp',
+        'linked_id' => 'setLinkedId',
+        'tags' => 'setTags',
+        'url' => 'setUrl',
+        'bot_info' => 'setBotInfo',
+        'ip_info' => 'setIpInfo',
+        'proxy' => 'setProxy',
+        'proxy_confidence' => 'setProxyConfidence',
+        'proxy_details' => 'setProxyDetails',
+        'vpn' => 'setVpn',
+        'vpn_confidence' => 'setVpnConfidence',
+        'vpn_methods' => 'setVpnMethods',
         'source' => 'setSource',
         'incremental_identification_status' => 'setIncrementalIdentificationStatus',
-        'linked_id' => 'setLinkedId',
         'environment_id' => 'setEnvironmentId',
         'suspect' => 'setSuspect',
         'sdk' => 'setSdk',
         'replayed' => 'setReplayed',
         'identification' => 'setIdentification',
         'supplementary_id_high_recall' => 'setSupplementaryIdHighRecall',
-        'tags' => 'setTags',
-        'url' => 'setUrl',
         'bundle_id' => 'setBundleId',
         'package_name' => 'setPackageName',
         'ip_address' => 'setIpAddress',
@@ -393,17 +405,12 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'active_call' => 'setActiveCall',
         'bot' => 'setBot',
         'bot_type' => 'setBotType',
-        'bot_info' => 'setBotInfo',
         'cloned_app' => 'setClonedApp',
         'developer_tools' => 'setDeveloperTools',
         'emulator' => 'setEmulator',
         'factory_reset_timestamp' => 'setFactoryResetTimestamp',
         'frida' => 'setFrida',
         'ip_blocklist' => 'setIpBlocklist',
-        'ip_info' => 'setIpInfo',
-        'proxy' => 'setProxy',
-        'proxy_confidence' => 'setProxyConfidence',
-        'proxy_details' => 'setProxyDetails',
         'proxy_ml_score' => 'setProxyMlScore',
         'incognito' => 'setIncognito',
         'jailbroken' => 'setJailbroken',
@@ -421,12 +428,9 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'velocity' => 'setVelocity',
         'virtual_machine' => 'setVirtualMachine',
         'virtual_machine_ml_score' => 'setVirtualMachineMlScore',
-        'vpn' => 'setVpn',
-        'vpn_confidence' => 'setVpnConfidence',
         'vpn_ml_score' => 'setVpnMlScore',
         'vpn_origin_timezone' => 'setVpnOriginTimezone',
         'vpn_origin_country' => 'setVpnOriginCountry',
-        'vpn_methods' => 'setVpnMethods',
         'high_activity_device' => 'setHighActivityDevice',
         'rare_device' => 'setRareDevice',
         'rare_device_percentile_bucket' => 'setRareDevicePercentileBucket',
@@ -442,17 +446,25 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     protected static array $getters = [
         'event_id' => 'getEventId',
         'timestamp' => 'getTimestamp',
+        'linked_id' => 'getLinkedId',
+        'tags' => 'getTags',
+        'url' => 'getUrl',
+        'bot_info' => 'getBotInfo',
+        'ip_info' => 'getIpInfo',
+        'proxy' => 'getProxy',
+        'proxy_confidence' => 'getProxyConfidence',
+        'proxy_details' => 'getProxyDetails',
+        'vpn' => 'getVpn',
+        'vpn_confidence' => 'getVpnConfidence',
+        'vpn_methods' => 'getVpnMethods',
         'source' => 'getSource',
         'incremental_identification_status' => 'getIncrementalIdentificationStatus',
-        'linked_id' => 'getLinkedId',
         'environment_id' => 'getEnvironmentId',
         'suspect' => 'getSuspect',
         'sdk' => 'getSdk',
         'replayed' => 'getReplayed',
         'identification' => 'getIdentification',
         'supplementary_id_high_recall' => 'getSupplementaryIdHighRecall',
-        'tags' => 'getTags',
-        'url' => 'getUrl',
         'bundle_id' => 'getBundleId',
         'package_name' => 'getPackageName',
         'ip_address' => 'getIpAddress',
@@ -466,17 +478,12 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'active_call' => 'getActiveCall',
         'bot' => 'getBot',
         'bot_type' => 'getBotType',
-        'bot_info' => 'getBotInfo',
         'cloned_app' => 'getClonedApp',
         'developer_tools' => 'getDeveloperTools',
         'emulator' => 'getEmulator',
         'factory_reset_timestamp' => 'getFactoryResetTimestamp',
         'frida' => 'getFrida',
         'ip_blocklist' => 'getIpBlocklist',
-        'ip_info' => 'getIpInfo',
-        'proxy' => 'getProxy',
-        'proxy_confidence' => 'getProxyConfidence',
-        'proxy_details' => 'getProxyDetails',
         'proxy_ml_score' => 'getProxyMlScore',
         'incognito' => 'getIncognito',
         'jailbroken' => 'getJailbroken',
@@ -494,12 +501,9 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'velocity' => 'getVelocity',
         'virtual_machine' => 'getVirtualMachine',
         'virtual_machine_ml_score' => 'getVirtualMachineMlScore',
-        'vpn' => 'getVpn',
-        'vpn_confidence' => 'getVpnConfidence',
         'vpn_ml_score' => 'getVpnMlScore',
         'vpn_origin_timezone' => 'getVpnOriginTimezone',
         'vpn_origin_country' => 'getVpnOriginCountry',
-        'vpn_methods' => 'getVpnMethods',
         'high_activity_device' => 'getHighActivityDevice',
         'rare_device' => 'getRareDevice',
         'rare_device_percentile_bucket' => 'getRareDevicePercentileBucket',
@@ -524,17 +528,25 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     {
         $this->setIfExists('event_id', $data ?? [], null);
         $this->setIfExists('timestamp', $data ?? [], null);
+        $this->setIfExists('linked_id', $data ?? [], null);
+        $this->setIfExists('tags', $data ?? [], null);
+        $this->setIfExists('url', $data ?? [], null);
+        $this->setIfExists('bot_info', $data ?? [], null);
+        $this->setIfExists('ip_info', $data ?? [], null);
+        $this->setIfExists('proxy', $data ?? [], null);
+        $this->setIfExists('proxy_confidence', $data ?? [], null);
+        $this->setIfExists('proxy_details', $data ?? [], null);
+        $this->setIfExists('vpn', $data ?? [], null);
+        $this->setIfExists('vpn_confidence', $data ?? [], null);
+        $this->setIfExists('vpn_methods', $data ?? [], null);
         $this->setIfExists('source', $data ?? [], null);
         $this->setIfExists('incremental_identification_status', $data ?? [], null);
-        $this->setIfExists('linked_id', $data ?? [], null);
         $this->setIfExists('environment_id', $data ?? [], null);
         $this->setIfExists('suspect', $data ?? [], null);
         $this->setIfExists('sdk', $data ?? [], null);
         $this->setIfExists('replayed', $data ?? [], null);
         $this->setIfExists('identification', $data ?? [], null);
         $this->setIfExists('supplementary_id_high_recall', $data ?? [], null);
-        $this->setIfExists('tags', $data ?? [], null);
-        $this->setIfExists('url', $data ?? [], null);
         $this->setIfExists('bundle_id', $data ?? [], null);
         $this->setIfExists('package_name', $data ?? [], null);
         $this->setIfExists('ip_address', $data ?? [], null);
@@ -548,17 +560,12 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         $this->setIfExists('active_call', $data ?? [], null);
         $this->setIfExists('bot', $data ?? [], null);
         $this->setIfExists('bot_type', $data ?? [], null);
-        $this->setIfExists('bot_info', $data ?? [], null);
         $this->setIfExists('cloned_app', $data ?? [], null);
         $this->setIfExists('developer_tools', $data ?? [], null);
         $this->setIfExists('emulator', $data ?? [], null);
         $this->setIfExists('factory_reset_timestamp', $data ?? [], null);
         $this->setIfExists('frida', $data ?? [], null);
         $this->setIfExists('ip_blocklist', $data ?? [], null);
-        $this->setIfExists('ip_info', $data ?? [], null);
-        $this->setIfExists('proxy', $data ?? [], null);
-        $this->setIfExists('proxy_confidence', $data ?? [], null);
-        $this->setIfExists('proxy_details', $data ?? [], null);
         $this->setIfExists('proxy_ml_score', $data ?? [], null);
         $this->setIfExists('incognito', $data ?? [], null);
         $this->setIfExists('jailbroken', $data ?? [], null);
@@ -576,12 +583,9 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         $this->setIfExists('velocity', $data ?? [], null);
         $this->setIfExists('virtual_machine', $data ?? [], null);
         $this->setIfExists('virtual_machine_ml_score', $data ?? [], null);
-        $this->setIfExists('vpn', $data ?? [], null);
-        $this->setIfExists('vpn_confidence', $data ?? [], null);
         $this->setIfExists('vpn_ml_score', $data ?? [], null);
         $this->setIfExists('vpn_origin_timezone', $data ?? [], null);
         $this->setIfExists('vpn_origin_country', $data ?? [], null);
-        $this->setIfExists('vpn_methods', $data ?? [], null);
         $this->setIfExists('high_activity_device', $data ?? [], null);
         $this->setIfExists('rare_device', $data ?? [], null);
         $this->setIfExists('rare_device_percentile_bucket', $data ?? [], null);
@@ -779,6 +783,249 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     }
 
     /**
+     * Gets linked_id.
+     *
+     */
+    public function getLinkedId(): ?string
+    {
+        return $this->container['linked_id'];
+    }
+
+    /**
+     * Sets linked_id.
+     *
+     * @param string $linked_id a customer-provided id that was sent with the request
+     *
+     */
+    public function setLinkedId(string $linked_id): self
+    {
+        $this->container['linked_id'] = $linked_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets tags.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function getTags(): ?array
+    {
+        return $this->container['tags'];
+    }
+
+    /**
+     * Sets tags.
+     *
+     * @param array<string,mixed> $tags a customer-provided value or an object that was sent with the identification request or updated later
+     *
+     */
+    public function setTags(array $tags): self
+    {
+        $this->container['tags'] = $tags;
+
+        return $this;
+    }
+
+    /**
+     * Gets url.
+     *
+     */
+    public function getUrl(): ?string
+    {
+        return $this->container['url'];
+    }
+
+    /**
+     * Sets url.
+     *
+     * @param string $url page URL from which the request was sent
+     *
+     */
+    public function setUrl(string $url): self
+    {
+        $this->container['url'] = $url;
+
+        return $this;
+    }
+
+    /**
+     * Gets bot_info.
+     *
+     */
+    public function getBotInfo(): ?BotInfo
+    {
+        return $this->container['bot_info'];
+    }
+
+    /**
+     * Sets bot_info.
+     *
+     * @param BotInfo $bot_info bot_info
+     *
+     */
+    public function setBotInfo(BotInfo $bot_info): self
+    {
+        $this->container['bot_info'] = $bot_info;
+
+        return $this;
+    }
+
+    /**
+     * Gets ip_info.
+     *
+     */
+    public function getIpInfo(): ?IPInfo
+    {
+        return $this->container['ip_info'];
+    }
+
+    /**
+     * Sets ip_info.
+     *
+     * @param IPInfo $ip_info ip_info
+     *
+     */
+    public function setIpInfo(IPInfo $ip_info): self
+    {
+        $this->container['ip_info'] = $ip_info;
+
+        return $this;
+    }
+
+    /**
+     * Gets proxy.
+     *
+     */
+    public function getProxy(): ?bool
+    {
+        return $this->container['proxy'];
+    }
+
+    /**
+     * Sets proxy.
+     *
+     * @param bool $proxy IP address was used by a public proxy provider or belonged to a known recent residential proxy
+     *
+     */
+    public function setProxy(bool $proxy): self
+    {
+        $this->container['proxy'] = $proxy;
+
+        return $this;
+    }
+
+    /**
+     * Gets proxy_confidence.
+     *
+     */
+    public function getProxyConfidence(): ProxyConfidence|string|null
+    {
+        return $this->container['proxy_confidence'];
+    }
+
+    /**
+     * Sets proxy_confidence.
+     *
+     * @param ProxyConfidence|string $proxy_confidence proxy_confidence
+     *
+     */
+    public function setProxyConfidence(ProxyConfidence|string $proxy_confidence): self
+    {
+        $this->container['proxy_confidence'] = $proxy_confidence;
+
+        return $this;
+    }
+
+    /**
+     * Gets proxy_details.
+     *
+     */
+    public function getProxyDetails(): ?ProxyDetails
+    {
+        return $this->container['proxy_details'];
+    }
+
+    /**
+     * Sets proxy_details.
+     *
+     * @param ProxyDetails $proxy_details proxy_details
+     *
+     */
+    public function setProxyDetails(ProxyDetails $proxy_details): self
+    {
+        $this->container['proxy_details'] = $proxy_details;
+
+        return $this;
+    }
+
+    /**
+     * Gets vpn.
+     *
+     */
+    public function getVpn(): ?bool
+    {
+        return $this->container['vpn'];
+    }
+
+    /**
+     * Sets vpn.
+     *
+     * @param bool $vpn VPN or other anonymizing service has been used when sending the request
+     *
+     */
+    public function setVpn(bool $vpn): self
+    {
+        $this->container['vpn'] = $vpn;
+
+        return $this;
+    }
+
+    /**
+     * Gets vpn_confidence.
+     *
+     */
+    public function getVpnConfidence(): string|VpnConfidence|null
+    {
+        return $this->container['vpn_confidence'];
+    }
+
+    /**
+     * Sets vpn_confidence.
+     *
+     * @param VpnConfidence|string $vpn_confidence vpn_confidence
+     *
+     */
+    public function setVpnConfidence(string|VpnConfidence $vpn_confidence): self
+    {
+        $this->container['vpn_confidence'] = $vpn_confidence;
+
+        return $this;
+    }
+
+    /**
+     * Gets vpn_methods.
+     *
+     */
+    public function getVpnMethods(): ?VpnMethods
+    {
+        return $this->container['vpn_methods'];
+    }
+
+    /**
+     * Sets vpn_methods.
+     *
+     * @param VpnMethods $vpn_methods vpn_methods
+     *
+     */
+    public function setVpnMethods(VpnMethods $vpn_methods): self
+    {
+        $this->container['vpn_methods'] = $vpn_methods;
+
+        return $this;
+    }
+
+    /**
      * Gets source.
      *
      */
@@ -823,28 +1070,6 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     }
 
     /**
-     * Gets linked_id.
-     *
-     */
-    public function getLinkedId(): ?string
-    {
-        return $this->container['linked_id'];
-    }
-
-    /**
-     * Sets linked_id.
-     *
-     * @param string $linked_id a customer-provided id that was sent with the request
-     *
-     */
-    public function setLinkedId(string $linked_id): self
-    {
-        $this->container['linked_id'] = $linked_id;
-
-        return $this;
-    }
-
-    /**
      * Gets environment_id.
      *
      */
@@ -878,7 +1103,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     /**
      * Sets suspect.
      *
-     * @param bool $suspect Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event).
+     * @param bool $suspect Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-update-event).
      *
      */
     public function setSuspect(bool $suspect): self
@@ -972,51 +1197,6 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     public function setSupplementaryIdHighRecall(SupplementaryIDHighRecall $supplementary_id_high_recall): self
     {
         $this->container['supplementary_id_high_recall'] = $supplementary_id_high_recall;
-
-        return $this;
-    }
-
-    /**
-     * Gets tags.
-     *
-     * @return array<string,mixed>|null
-     */
-    public function getTags(): ?array
-    {
-        return $this->container['tags'];
-    }
-
-    /**
-     * Sets tags.
-     *
-     * @param array<string,mixed> $tags a customer-provided value or an object that was sent with the identification request or updated later
-     *
-     */
-    public function setTags(array $tags): self
-    {
-        $this->container['tags'] = $tags;
-
-        return $this;
-    }
-
-    /**
-     * Gets url.
-     *
-     */
-    public function getUrl(): ?string
-    {
-        return $this->container['url'];
-    }
-
-    /**
-     * Sets url.
-     *
-     * @param string $url page URL from which the request was sent
-     *
-     */
-    public function setUrl(string $url): self
-    {
-        $this->container['url'] = $url;
 
         return $this;
     }
@@ -1308,28 +1488,6 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     }
 
     /**
-     * Gets bot_info.
-     *
-     */
-    public function getBotInfo(): ?BotInfo
-    {
-        return $this->container['bot_info'];
-    }
-
-    /**
-     * Sets bot_info.
-     *
-     * @param BotInfo $bot_info bot_info
-     *
-     */
-    public function setBotInfo(BotInfo $bot_info): self
-    {
-        $this->container['bot_info'] = $bot_info;
-
-        return $this;
-    }
-
-    /**
      * Gets cloned_app.
      *
      */
@@ -1457,94 +1615,6 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     public function setIpBlocklist(IPBlockList $ip_blocklist): self
     {
         $this->container['ip_blocklist'] = $ip_blocklist;
-
-        return $this;
-    }
-
-    /**
-     * Gets ip_info.
-     *
-     */
-    public function getIpInfo(): ?IPInfo
-    {
-        return $this->container['ip_info'];
-    }
-
-    /**
-     * Sets ip_info.
-     *
-     * @param IPInfo $ip_info ip_info
-     *
-     */
-    public function setIpInfo(IPInfo $ip_info): self
-    {
-        $this->container['ip_info'] = $ip_info;
-
-        return $this;
-    }
-
-    /**
-     * Gets proxy.
-     *
-     */
-    public function getProxy(): ?bool
-    {
-        return $this->container['proxy'];
-    }
-
-    /**
-     * Sets proxy.
-     *
-     * @param bool $proxy IP address was used by a public proxy provider or belonged to a known recent residential proxy
-     *
-     */
-    public function setProxy(bool $proxy): self
-    {
-        $this->container['proxy'] = $proxy;
-
-        return $this;
-    }
-
-    /**
-     * Gets proxy_confidence.
-     *
-     */
-    public function getProxyConfidence(): ProxyConfidence|string|null
-    {
-        return $this->container['proxy_confidence'];
-    }
-
-    /**
-     * Sets proxy_confidence.
-     *
-     * @param ProxyConfidence|string $proxy_confidence proxy_confidence
-     *
-     */
-    public function setProxyConfidence(ProxyConfidence|string $proxy_confidence): self
-    {
-        $this->container['proxy_confidence'] = $proxy_confidence;
-
-        return $this;
-    }
-
-    /**
-     * Gets proxy_details.
-     *
-     */
-    public function getProxyDetails(): ?ProxyDetails
-    {
-        return $this->container['proxy_details'];
-    }
-
-    /**
-     * Sets proxy_details.
-     *
-     * @param ProxyDetails $proxy_details proxy_details
-     *
-     */
-    public function setProxyDetails(ProxyDetails $proxy_details): self
-    {
-        $this->container['proxy_details'] = $proxy_details;
 
         return $this;
     }
@@ -1945,50 +2015,6 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     }
 
     /**
-     * Gets vpn.
-     *
-     */
-    public function getVpn(): ?bool
-    {
-        return $this->container['vpn'];
-    }
-
-    /**
-     * Sets vpn.
-     *
-     * @param bool $vpn VPN or other anonymizing service has been used when sending the request
-     *
-     */
-    public function setVpn(bool $vpn): self
-    {
-        $this->container['vpn'] = $vpn;
-
-        return $this;
-    }
-
-    /**
-     * Gets vpn_confidence.
-     *
-     */
-    public function getVpnConfidence(): string|VpnConfidence|null
-    {
-        return $this->container['vpn_confidence'];
-    }
-
-    /**
-     * Sets vpn_confidence.
-     *
-     * @param VpnConfidence|string $vpn_confidence vpn_confidence
-     *
-     */
-    public function setVpnConfidence(string|VpnConfidence $vpn_confidence): self
-    {
-        $this->container['vpn_confidence'] = $vpn_confidence;
-
-        return $this;
-    }
-
-    /**
      * Gets vpn_ml_score.
      *
      */
@@ -2057,28 +2083,6 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     public function setVpnOriginCountry(string $vpn_origin_country): self
     {
         $this->container['vpn_origin_country'] = $vpn_origin_country;
-
-        return $this;
-    }
-
-    /**
-     * Gets vpn_methods.
-     *
-     */
-    public function getVpnMethods(): ?VpnMethods
-    {
-        return $this->container['vpn_methods'];
-    }
-
-    /**
-     * Sets vpn_methods.
-     *
-     * @param VpnMethods $vpn_methods vpn_methods
-     *
-     */
-    public function setVpnMethods(VpnMethods $vpn_methods): self
-    {
-        $this->container['vpn_methods'] = $vpn_methods;
 
         return $this;
     }

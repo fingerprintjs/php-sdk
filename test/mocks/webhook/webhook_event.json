@@ -1,4 +1,5 @@
 {
+  "source": "device",
   "linked_id": "somelinkedId",
   "tags": {},
   "timestamp": 1708102555327,

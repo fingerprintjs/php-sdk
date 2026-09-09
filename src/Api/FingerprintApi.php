@@ -34,7 +34,9 @@ use Fingerprint\ServerSdk\Configuration;
 use Fingerprint\ServerSdk\Model\BotInfoCategory;
 use Fingerprint\ServerSdk\Model\BotInfoConfidence;
 use Fingerprint\ServerSdk\Model\BotInfoIdentity;
+use Fingerprint\ServerSdk\Model\EdgeRequest;
 use Fingerprint\ServerSdk\Model\Event;
+use Fingerprint\ServerSdk\Model\EventEdge;
 use Fingerprint\ServerSdk\Model\EventSearch;
 use Fingerprint\ServerSdk\Model\EventUpdate;
 use Fingerprint\ServerSdk\Model\SearchEventsBot;
@@ -106,11 +108,218 @@ class FingerprintApi
     }
 
     /**
+     * Operation analyzeRequestForAutomationIntelligence.
+     *
+     * Collect Automation Intelligence.
+     *
+     * @param EdgeRequest $edge_request edge_request (required)
+     *
+     * @noinspection GrazieInspection
+     *
+     * @throws ApiException                  on non-2xx response or if the response body is not in the expected format
+     * @throws \InvalidArgumentException
+     * @throws GuzzleException
+     * @throws \DateMalformedStringException
+     */
+    public function analyzeRequestForAutomationIntelligence(EdgeRequest $edge_request): EventEdge
+    {
+        list($response) = $this->analyzeRequestForAutomationIntelligenceWithHttpInfo($edge_request);
+
+        return $response;
+    }
+
+    /**
+     * Operation analyzeRequestForAutomationIntelligenceWithHttpInfo.
+     *
+     * Collect Automation Intelligence.
+     *
+     * @param EdgeRequest $edge_request (required)
+     *
+     * @noinspection GrazieInspection
+     *
+     * @return array{ EventEdge|null, ResponseInterface }
+     *
+     * @throws ApiException                  on non-2xx response or if the response body is not in the expected format
+     * @throws \InvalidArgumentException
+     * @throws GuzzleException
+     * @throws \DateMalformedStringException
+     */
+    public function analyzeRequestForAutomationIntelligenceWithHttpInfo(EdgeRequest $edge_request): array
+    {
+        $request = $this->analyzeRequestForAutomationIntelligenceRequest($edge_request);
+
+        try {
+            $options = $this->createHttpClientOption();
+
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse(),
+                    $e
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    $e
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        $request->getUri()
+                    ),
+                    $statusCode,
+                    $response
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Fingerprint\ServerSdk\Model\EventEdge',
+                $request,
+                $response
+            );
+        } catch (ApiException $e) {
+            $this->handleAnalyzeRequestForAutomationIntelligenceError($e);
+        }
+    }
+
+    /**
+     * Operation analyzeRequestForAutomationIntelligenceAsync.
+     *
+     * Collect Automation Intelligence.
+     *
+     * @param EdgeRequest $edge_request (required)
+     *
+     * @noinspection GrazieInspection
+     *
+     * @return PromiseInterface promise resolving to the deserialized response
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function analyzeRequestForAutomationIntelligenceAsync(EdgeRequest $edge_request): PromiseInterface
+    {
+        return $this->analyzeRequestForAutomationIntelligenceAsyncWithHttpInfo($edge_request)
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation analyzeRequestForAutomationIntelligenceAsyncWithHttpInfo.
+     *
+     * Collect Automation Intelligence.
+     *
+     * @param EdgeRequest $edge_request (required)
+     *
+     * @noinspection GrazieInspection
+     *
+     * @return PromiseInterface promise resolving to an array of deserialized data and the HTTP response
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function analyzeRequestForAutomationIntelligenceAsyncWithHttpInfo(EdgeRequest $edge_request): PromiseInterface
+    {
+        $request = $this->analyzeRequestForAutomationIntelligenceRequest($edge_request);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) {
+                    $content = (string) $response->getBody();
+                    $response->getBody()->rewind();
+
+                    return [
+                        ObjectSerializer::deserialize($content, '\Fingerprint\ServerSdk\Model\EventEdge'),
+                        $response,
+                    ];
+                },
+                function ($e) {
+                    if ($e instanceof RequestException) {
+                        $e = new ApiException(
+                            "[{$e->getCode()}] {$e->getMessage()}",
+                            (int) $e->getCode(),
+                            $e->getResponse(),
+                            $e
+                        );
+                    } elseif ($e instanceof ConnectException) {
+                        $e = new ApiException(
+                            "[{$e->getCode()}] {$e->getMessage()}",
+                            (int) $e->getCode(),
+                            null,
+                            $e
+                        );
+                    } elseif (!$e instanceof ApiException) {
+                        $e = new ApiException(
+                            $e->getMessage(),
+                            (int) $e->getCode(),
+                            null,
+                            $e
+                        );
+                    }
+                    $this->handleAnalyzeRequestForAutomationIntelligenceError($e);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'analyzeRequestForAutomationIntelligence'.
+     *
+     * @param EdgeRequest $edge_request (required)
+     *
+     * @noinspection GrazieInspection
+     *
+     * @return Request the prepared HTTP request
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function analyzeRequestForAutomationIntelligenceRequest(EdgeRequest $edge_request): Request
+    {
+        $resourcePath = '/edge';
+        $headers = [
+            'Authorization' => 'Bearer '.$this->config->getApiKey(),
+        ];
+        $queryParams = ['ii' => $this->integration_info];
+        $headerParams = [];
+
+        $httpBody = Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($edge_request));
+
+        if ($this->config->getUserAgent()) {
+            $headers['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $headerParams,
+            $headers
+        );
+
+        $query = ObjectSerializer::buildQuery($queryParams);
+
+        return new Request(
+            'POST',
+            $this->config->getHost().$resourcePath.($query ? "?$query" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
      * Operation deleteVisitorData.
      *
      * Delete a visitor ID
      *
-     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) you want to delete. (required)
+     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) you want to delete. (required)
      *
      * @noinspection GrazieInspection
      *
@@ -129,7 +338,7 @@ class FingerprintApi
      *
      * Delete a visitor ID
      *
-     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) you want to delete. (required)
+     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) you want to delete. (required)
      *
      * @noinspection GrazieInspection
      *
@@ -190,7 +399,7 @@ class FingerprintApi
      *
      * Delete a visitor ID
      *
-     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) you want to delete. (required)
+     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) you want to delete. (required)
      *
      * @noinspection GrazieInspection
      *
@@ -213,7 +422,7 @@ class FingerprintApi
      *
      * Delete a visitor ID
      *
-     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) you want to delete. (required)
+     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) you want to delete. (required)
      *
      * @noinspection GrazieInspection
      *
@@ -262,7 +471,7 @@ class FingerprintApi
     /**
      * Create request for operation 'deleteVisitorData'.
      *
-     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) you want to delete. (required)
+     * @param string $visitor_id The [visitor ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) you want to delete. (required)
      *
      * @noinspection GrazieInspection
      *
@@ -309,7 +518,7 @@ class FingerprintApi
      *
      * Get an event by event ID
      *
-     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
+     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
      * @param string|null $ruleset_id The ID of the ruleset to evaluate against the event, producing the action to take for this event. The resulting action is returned in the `rule_action` attribute of the response. (optional)
      *
      * @noinspection GrazieInspection
@@ -331,7 +540,7 @@ class FingerprintApi
      *
      * Get an event by event ID
      *
-     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
+     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
      * @param string|null $ruleset_id The ID of the ruleset to evaluate against the event, producing the action to take for this event. The resulting action is returned in the `rule_action` attribute of the response. (optional)
      *
      * @noinspection GrazieInspection
@@ -397,7 +606,7 @@ class FingerprintApi
      *
      * Get an event by event ID
      *
-     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
+     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
      * @param string|null $ruleset_id The ID of the ruleset to evaluate against the event, producing the action to take for this event. The resulting action is returned in the `rule_action` attribute of the response. (optional)
      *
      * @noinspection GrazieInspection
@@ -421,7 +630,7 @@ class FingerprintApi
      *
      * Get an event by event ID
      *
-     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
+     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
      * @param string|null $ruleset_id The ID of the ruleset to evaluate against the event, producing the action to take for this event. The resulting action is returned in the `rule_action` attribute of the response. (optional)
      *
      * @noinspection GrazieInspection
@@ -477,7 +686,7 @@ class FingerprintApi
     /**
      * Create request for operation 'getEvent'.
      *
-     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
+     * @param string      $event_id   The unique [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id) of each identification request (`requestId` can be used in its place). (required)
      * @param string|null $ruleset_id The ID of the ruleset to evaluate against the event, producing the action to take for this event. The resulting action is returned in the `rule_action` attribute of the response. (optional)
      *
      * @noinspection GrazieInspection
@@ -537,7 +746,7 @@ class FingerprintApi
      *
      * @param int                                              $limit                             Maximum number of events to return. Defaults to 10 when omitted. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events. (optional)
      * @param string|null                                      $pagination_key                    Use `pagination_key` to get the next page of results.  When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The pagination key is an arbitrary string that should not be interpreted in any way and should be passed as-is. In the following request, use that value in the `pagination_key` parameter to get the next page of results:  1. First request, returning most recent 100 events: `GET api-base-url/events?limit=100` 2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q` (optional)
-     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
+     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
      * @param string|null                                      $high_recall_id                    The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental.  Filter events by matching High Recall ID (`supplementary_id_high_recall.visitor_id` property). (optional)
      * @param SearchEventsBot|null                             $bot                               Filter events by the Bot Detection result, specifically:   `all` - events where any kind of bot was detected.   `good` - events where a good bot was detected.   `bad` - events where a bad bot was detected.   `none` - events where no bot was detected. > Note: When using this parameter, only events with the `bot` property set to a valid value are returned. Events without a `bot` Smart Signal result are left out of the response. (optional)
      * @param SearchEventsBotInfo|null                         $bot_info                          Filter events by their Bot Info result, specifically:   - `all` - events where any kind of bot was detected.   - `none` - events where no bot was detected, and no `bot_info` was present. (optional)
@@ -548,7 +757,7 @@ class FingerprintApi
      * @param string[]|null                                    $bot_info_name                     Filter events by their Bot Info Name. The name must match exactly, partial or wildcard matching is not supported.  Multiple Names can be provided using the repeated keys syntax. For example, `bot_info_name=ChatGPT%20Agent&bot_info_name=Bedrock%20AgentCore`, will match events with a Bot Info Name of `ChatGPT Agent` or `Bedrock AgentCore`. Other notations like comma-separated or bracket notation are not supported. (optional)
      * @param string|null                                      $ip_address                        Filter events by IP address or IP range (if CIDR notation is used). If CIDR notation is not used, a /32 for IPv4 or /128 for IPv6 is assumed. Examples of range based queries: 10.0.0.0/24, 192.168.0.1/32 (optional)
      * @param string|null                                      $asn                               Filter events by the ASN associated with the event's IP address. This corresponds to the `ip_info.(v4|v6).asn` property in the response. (optional)
-     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
+     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
      * @param string|null                                      $url                               Filter events by the URL (`url` property) associated with the event. (optional)
      * @param string|null                                      $bundle_id                         Filter events by the Bundle ID (iOS) associated with the event. (optional)
      * @param string|null                                      $package_name                      Filter events by the Package Name (Android) associated with the event. (optional)
@@ -585,8 +794,8 @@ class FingerprintApi
      * @param bool|null                                        $tor_node                          Filter events by Tor Node detection result. > Note: When using this parameter, only events with the `tor_node` property set to `true` or `false` are returned. Events without a `tor_node` detection result are left out of the response. (optional)
      * @param SearchEventsIncrementalIdentificationStatus|null $incremental_identification_status Filter events by their incremental identification status (`incremental_identification_status` property). Non incremental identification events are left out of the response. (optional)
      * @param bool|null                                        $simulator                         Filter events by iOS Simulator Detection result.  > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response. (optional)
-     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      * @param bool|null                                        $active_call                       Filter events by Active Call Detection result on mobile devices.  > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response. (optional)
+     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      *
      * @noinspection GrazieInspection
      *
@@ -595,9 +804,9 @@ class FingerprintApi
      * @throws GuzzleException
      * @throws \DateMalformedStringException
      */
-    public function searchEvents(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?array $source = null, ?bool $active_call = null): EventSearch
+    public function searchEvents(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?bool $active_call = null, ?array $source = null): EventSearch
     {
-        list($response) = $this->searchEventsWithHttpInfo($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $source, $active_call);
+        list($response) = $this->searchEventsWithHttpInfo($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $active_call, $source);
 
         return $response;
     }
@@ -609,7 +818,7 @@ class FingerprintApi
      *
      * @param int                                              $limit                             Maximum number of events to return. Defaults to 10 when omitted. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events. (optional)
      * @param string|null                                      $pagination_key                    Use `pagination_key` to get the next page of results.  When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The pagination key is an arbitrary string that should not be interpreted in any way and should be passed as-is. In the following request, use that value in the `pagination_key` parameter to get the next page of results:  1. First request, returning most recent 100 events: `GET api-base-url/events?limit=100` 2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q` (optional)
-     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
+     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
      * @param string|null                                      $high_recall_id                    The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental.  Filter events by matching High Recall ID (`supplementary_id_high_recall.visitor_id` property). (optional)
      * @param SearchEventsBot|null                             $bot                               Filter events by the Bot Detection result, specifically:   `all` - events where any kind of bot was detected.   `good` - events where a good bot was detected.   `bad` - events where a bad bot was detected.   `none` - events where no bot was detected. > Note: When using this parameter, only events with the `bot` property set to a valid value are returned. Events without a `bot` Smart Signal result are left out of the response. (optional)
      * @param SearchEventsBotInfo|null                         $bot_info                          Filter events by their Bot Info result, specifically:   - `all` - events where any kind of bot was detected.   - `none` - events where no bot was detected, and no `bot_info` was present. (optional)
@@ -620,7 +829,7 @@ class FingerprintApi
      * @param string[]|null                                    $bot_info_name                     Filter events by their Bot Info Name. The name must match exactly, partial or wildcard matching is not supported.  Multiple Names can be provided using the repeated keys syntax. For example, `bot_info_name=ChatGPT%20Agent&bot_info_name=Bedrock%20AgentCore`, will match events with a Bot Info Name of `ChatGPT Agent` or `Bedrock AgentCore`. Other notations like comma-separated or bracket notation are not supported. (optional)
      * @param string|null                                      $ip_address                        Filter events by IP address or IP range (if CIDR notation is used). If CIDR notation is not used, a /32 for IPv4 or /128 for IPv6 is assumed. Examples of range based queries: 10.0.0.0/24, 192.168.0.1/32 (optional)
      * @param string|null                                      $asn                               Filter events by the ASN associated with the event's IP address. This corresponds to the `ip_info.(v4|v6).asn` property in the response. (optional)
-     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
+     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
      * @param string|null                                      $url                               Filter events by the URL (`url` property) associated with the event. (optional)
      * @param string|null                                      $bundle_id                         Filter events by the Bundle ID (iOS) associated with the event. (optional)
      * @param string|null                                      $package_name                      Filter events by the Package Name (Android) associated with the event. (optional)
@@ -657,8 +866,8 @@ class FingerprintApi
      * @param bool|null                                        $tor_node                          Filter events by Tor Node detection result. > Note: When using this parameter, only events with the `tor_node` property set to `true` or `false` are returned. Events without a `tor_node` detection result are left out of the response. (optional)
      * @param SearchEventsIncrementalIdentificationStatus|null $incremental_identification_status Filter events by their incremental identification status (`incremental_identification_status` property). Non incremental identification events are left out of the response. (optional)
      * @param bool|null                                        $simulator                         Filter events by iOS Simulator Detection result.  > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response. (optional)
-     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      * @param bool|null                                        $active_call                       Filter events by Active Call Detection result on mobile devices.  > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response. (optional)
+     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      *
      * @noinspection GrazieInspection
      *
@@ -669,9 +878,9 @@ class FingerprintApi
      * @throws GuzzleException
      * @throws \DateMalformedStringException
      */
-    public function searchEventsWithHttpInfo(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?array $source = null, ?bool $active_call = null): array
+    public function searchEventsWithHttpInfo(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?bool $active_call = null, ?array $source = null): array
     {
-        $request = $this->searchEventsRequest($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $source, $active_call);
+        $request = $this->searchEventsRequest($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $active_call, $source);
 
         try {
             $options = $this->createHttpClientOption();
@@ -725,7 +934,7 @@ class FingerprintApi
      *
      * @param int                                              $limit                             Maximum number of events to return. Defaults to 10 when omitted. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events. (optional)
      * @param string|null                                      $pagination_key                    Use `pagination_key` to get the next page of results.  When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The pagination key is an arbitrary string that should not be interpreted in any way and should be passed as-is. In the following request, use that value in the `pagination_key` parameter to get the next page of results:  1. First request, returning most recent 100 events: `GET api-base-url/events?limit=100` 2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q` (optional)
-     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
+     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
      * @param string|null                                      $high_recall_id                    The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental.  Filter events by matching High Recall ID (`supplementary_id_high_recall.visitor_id` property). (optional)
      * @param SearchEventsBot|null                             $bot                               Filter events by the Bot Detection result, specifically:   `all` - events where any kind of bot was detected.   `good` - events where a good bot was detected.   `bad` - events where a bad bot was detected.   `none` - events where no bot was detected. > Note: When using this parameter, only events with the `bot` property set to a valid value are returned. Events without a `bot` Smart Signal result are left out of the response. (optional)
      * @param SearchEventsBotInfo|null                         $bot_info                          Filter events by their Bot Info result, specifically:   - `all` - events where any kind of bot was detected.   - `none` - events where no bot was detected, and no `bot_info` was present. (optional)
@@ -736,7 +945,7 @@ class FingerprintApi
      * @param string[]|null                                    $bot_info_name                     Filter events by their Bot Info Name. The name must match exactly, partial or wildcard matching is not supported.  Multiple Names can be provided using the repeated keys syntax. For example, `bot_info_name=ChatGPT%20Agent&bot_info_name=Bedrock%20AgentCore`, will match events with a Bot Info Name of `ChatGPT Agent` or `Bedrock AgentCore`. Other notations like comma-separated or bracket notation are not supported. (optional)
      * @param string|null                                      $ip_address                        Filter events by IP address or IP range (if CIDR notation is used). If CIDR notation is not used, a /32 for IPv4 or /128 for IPv6 is assumed. Examples of range based queries: 10.0.0.0/24, 192.168.0.1/32 (optional)
      * @param string|null                                      $asn                               Filter events by the ASN associated with the event's IP address. This corresponds to the `ip_info.(v4|v6).asn` property in the response. (optional)
-     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
+     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
      * @param string|null                                      $url                               Filter events by the URL (`url` property) associated with the event. (optional)
      * @param string|null                                      $bundle_id                         Filter events by the Bundle ID (iOS) associated with the event. (optional)
      * @param string|null                                      $package_name                      Filter events by the Package Name (Android) associated with the event. (optional)
@@ -773,8 +982,8 @@ class FingerprintApi
      * @param bool|null                                        $tor_node                          Filter events by Tor Node detection result. > Note: When using this parameter, only events with the `tor_node` property set to `true` or `false` are returned. Events without a `tor_node` detection result are left out of the response. (optional)
      * @param SearchEventsIncrementalIdentificationStatus|null $incremental_identification_status Filter events by their incremental identification status (`incremental_identification_status` property). Non incremental identification events are left out of the response. (optional)
      * @param bool|null                                        $simulator                         Filter events by iOS Simulator Detection result.  > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response. (optional)
-     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      * @param bool|null                                        $active_call                       Filter events by Active Call Detection result on mobile devices.  > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response. (optional)
+     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      *
      * @noinspection GrazieInspection
      *
@@ -782,9 +991,9 @@ class FingerprintApi
      *
      * @throws \InvalidArgumentException
      */
-    public function searchEventsAsync(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?array $source = null, ?bool $active_call = null): PromiseInterface
+    public function searchEventsAsync(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?bool $active_call = null, ?array $source = null): PromiseInterface
     {
-        return $this->searchEventsAsyncWithHttpInfo($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $source, $active_call)
+        return $this->searchEventsAsyncWithHttpInfo($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $active_call, $source)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -799,7 +1008,7 @@ class FingerprintApi
      *
      * @param int                                              $limit                             Maximum number of events to return. Defaults to 10 when omitted. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events. (optional)
      * @param string|null                                      $pagination_key                    Use `pagination_key` to get the next page of results.  When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The pagination key is an arbitrary string that should not be interpreted in any way and should be passed as-is. In the following request, use that value in the `pagination_key` parameter to get the next page of results:  1. First request, returning most recent 100 events: `GET api-base-url/events?limit=100` 2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q` (optional)
-     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
+     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
      * @param string|null                                      $high_recall_id                    The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental.  Filter events by matching High Recall ID (`supplementary_id_high_recall.visitor_id` property). (optional)
      * @param SearchEventsBot|null                             $bot                               Filter events by the Bot Detection result, specifically:   `all` - events where any kind of bot was detected.   `good` - events where a good bot was detected.   `bad` - events where a bad bot was detected.   `none` - events where no bot was detected. > Note: When using this parameter, only events with the `bot` property set to a valid value are returned. Events without a `bot` Smart Signal result are left out of the response. (optional)
      * @param SearchEventsBotInfo|null                         $bot_info                          Filter events by their Bot Info result, specifically:   - `all` - events where any kind of bot was detected.   - `none` - events where no bot was detected, and no `bot_info` was present. (optional)
@@ -810,7 +1019,7 @@ class FingerprintApi
      * @param string[]|null                                    $bot_info_name                     Filter events by their Bot Info Name. The name must match exactly, partial or wildcard matching is not supported.  Multiple Names can be provided using the repeated keys syntax. For example, `bot_info_name=ChatGPT%20Agent&bot_info_name=Bedrock%20AgentCore`, will match events with a Bot Info Name of `ChatGPT Agent` or `Bedrock AgentCore`. Other notations like comma-separated or bracket notation are not supported. (optional)
      * @param string|null                                      $ip_address                        Filter events by IP address or IP range (if CIDR notation is used). If CIDR notation is not used, a /32 for IPv4 or /128 for IPv6 is assumed. Examples of range based queries: 10.0.0.0/24, 192.168.0.1/32 (optional)
      * @param string|null                                      $asn                               Filter events by the ASN associated with the event's IP address. This corresponds to the `ip_info.(v4|v6).asn` property in the response. (optional)
-     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
+     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
      * @param string|null                                      $url                               Filter events by the URL (`url` property) associated with the event. (optional)
      * @param string|null                                      $bundle_id                         Filter events by the Bundle ID (iOS) associated with the event. (optional)
      * @param string|null                                      $package_name                      Filter events by the Package Name (Android) associated with the event. (optional)
@@ -847,8 +1056,8 @@ class FingerprintApi
      * @param bool|null                                        $tor_node                          Filter events by Tor Node detection result. > Note: When using this parameter, only events with the `tor_node` property set to `true` or `false` are returned. Events without a `tor_node` detection result are left out of the response. (optional)
      * @param SearchEventsIncrementalIdentificationStatus|null $incremental_identification_status Filter events by their incremental identification status (`incremental_identification_status` property). Non incremental identification events are left out of the response. (optional)
      * @param bool|null                                        $simulator                         Filter events by iOS Simulator Detection result.  > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response. (optional)
-     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      * @param bool|null                                        $active_call                       Filter events by Active Call Detection result on mobile devices.  > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response. (optional)
+     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      *
      * @noinspection GrazieInspection
      *
@@ -856,9 +1065,9 @@ class FingerprintApi
      *
      * @throws \InvalidArgumentException
      */
-    public function searchEventsAsyncWithHttpInfo(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?array $source = null, ?bool $active_call = null): PromiseInterface
+    public function searchEventsAsyncWithHttpInfo(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?bool $active_call = null, ?array $source = null): PromiseInterface
     {
-        $request = $this->searchEventsRequest($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $source, $active_call);
+        $request = $this->searchEventsRequest($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $active_call, $source);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -905,7 +1114,7 @@ class FingerprintApi
      *
      * @param int                                              $limit                             Maximum number of events to return. Defaults to 10 when omitted. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events. (optional)
      * @param string|null                                      $pagination_key                    Use `pagination_key` to get the next page of results.  When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The pagination key is an arbitrary string that should not be interpreted in any way and should be passed as-is. In the following request, use that value in the `pagination_key` parameter to get the next page of results:  1. First request, returning most recent 100 events: `GET api-base-url/events?limit=100` 2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q` (optional)
-     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
+     * @param string|null                                      $visitor_id                        Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.  Filter events by matching Visitor ID (`identification.visitor_id` property). (optional)
      * @param string|null                                      $high_recall_id                    The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental.  Filter events by matching High Recall ID (`supplementary_id_high_recall.visitor_id` property). (optional)
      * @param SearchEventsBot|null                             $bot                               Filter events by the Bot Detection result, specifically:   `all` - events where any kind of bot was detected.   `good` - events where a good bot was detected.   `bad` - events where a bad bot was detected.   `none` - events where no bot was detected. > Note: When using this parameter, only events with the `bot` property set to a valid value are returned. Events without a `bot` Smart Signal result are left out of the response. (optional)
      * @param SearchEventsBotInfo|null                         $bot_info                          Filter events by their Bot Info result, specifically:   - `all` - events where any kind of bot was detected.   - `none` - events where no bot was detected, and no `bot_info` was present. (optional)
@@ -916,7 +1125,7 @@ class FingerprintApi
      * @param string[]|null                                    $bot_info_name                     Filter events by their Bot Info Name. The name must match exactly, partial or wildcard matching is not supported.  Multiple Names can be provided using the repeated keys syntax. For example, `bot_info_name=ChatGPT%20Agent&bot_info_name=Bedrock%20AgentCore`, will match events with a Bot Info Name of `ChatGPT Agent` or `Bedrock AgentCore`. Other notations like comma-separated or bracket notation are not supported. (optional)
      * @param string|null                                      $ip_address                        Filter events by IP address or IP range (if CIDR notation is used). If CIDR notation is not used, a /32 for IPv4 or /128 for IPv6 is assumed. Examples of range based queries: 10.0.0.0/24, 192.168.0.1/32 (optional)
      * @param string|null                                      $asn                               Filter events by the ASN associated with the event's IP address. This corresponds to the `ip_info.(v4|v6).asn` property in the response. (optional)
-     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
+     * @param string|null                                      $linked_id                         Filter events by your custom identifier.  You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier. (optional)
      * @param string|null                                      $url                               Filter events by the URL (`url` property) associated with the event. (optional)
      * @param string|null                                      $bundle_id                         Filter events by the Bundle ID (iOS) associated with the event. (optional)
      * @param string|null                                      $package_name                      Filter events by the Package Name (Android) associated with the event. (optional)
@@ -953,8 +1162,8 @@ class FingerprintApi
      * @param bool|null                                        $tor_node                          Filter events by Tor Node detection result. > Note: When using this parameter, only events with the `tor_node` property set to `true` or `false` are returned. Events without a `tor_node` detection result are left out of the response. (optional)
      * @param SearchEventsIncrementalIdentificationStatus|null $incremental_identification_status Filter events by their incremental identification status (`incremental_identification_status` property). Non incremental identification events are left out of the response. (optional)
      * @param bool|null                                        $simulator                         Filter events by iOS Simulator Detection result.  > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response. (optional)
-     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      * @param bool|null                                        $active_call                       Filter events by Active Call Detection result on mobile devices.  > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response. (optional)
+     * @param SearchEventsSource[]|null                        $source                            Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. (optional)
      *
      * @noinspection GrazieInspection
      *
@@ -962,7 +1171,7 @@ class FingerprintApi
      *
      * @throws \InvalidArgumentException
      */
-    public function searchEventsRequest(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?array $source = null, ?bool $active_call = null): Request
+    public function searchEventsRequest(?int $limit = null, ?string $pagination_key = null, ?string $visitor_id = null, ?string $high_recall_id = null, ?SearchEventsBot $bot = null, ?SearchEventsBotInfo $bot_info = null, ?array $bot_info_category = null, ?array $bot_info_identity = null, ?array $bot_info_confidence = null, ?array $bot_info_provider = null, ?array $bot_info_name = null, ?string $ip_address = null, ?string $asn = null, ?string $linked_id = null, ?string $url = null, ?string $bundle_id = null, ?string $package_name = null, ?string $origin = null, \DateTime|int|null $start = null, \DateTime|int|null $end = null, ?bool $reverse = null, ?bool $suspect = null, ?bool $vpn = null, ?bool $virtual_machine = null, ?bool $tampering = null, ?bool $anti_detect_browser = null, ?bool $incognito = null, ?bool $privacy_settings = null, ?bool $jailbroken = null, ?bool $frida = null, ?bool $factory_reset = null, ?bool $cloned_app = null, ?bool $emulator = null, ?bool $root_apps = null, ?SearchEventsVpnConfidence $vpn_confidence = null, ?float $min_suspect_score = null, ?bool $developer_tools = null, ?bool $location_spoofing = null, ?bool $mitm_attack = null, ?bool $rare_device = null, ?SearchEventsRareDevicePercentileBucket $rare_device_percentile_bucket = null, ?bool $proxy = null, ?string $sdk_version = null, ?SearchEventsSdkPlatform $sdk_platform = null, ?array $environment = null, ?string $proximity_id = null, ?int $total_hits = null, ?bool $tor_node = null, ?SearchEventsIncrementalIdentificationStatus $incremental_identification_status = null, ?bool $simulator = null, ?bool $active_call = null, ?array $source = null): Request
     {
         if (null !== $limit && $limit > 100) {
             throw new \InvalidArgumentException('invalid value for "$limit" when calling FingerprintApi.searchEvents, must be smaller than or equal to 100.');
@@ -1439,18 +1648,18 @@ class FingerprintApi
         ) ?? []);
         // query params
         $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
-            $source,
-            'source',
-            'array',
+            $active_call,
+            'active_call',
+            'boolean',
             'form',
             true,
             false
         ) ?? []);
         // query params
         $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
-            $active_call,
-            'active_call',
-            'boolean',
+            $source,
+            'source',
+            'array',
             'form',
             true,
             false
@@ -1479,7 +1688,7 @@ class FingerprintApi
      *
      * Update an event
      *
-     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id). (required)
+     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id). (required)
      * @param EventUpdate $event_update event_update (required)
      *
      * @noinspection GrazieInspection
@@ -1499,7 +1708,7 @@ class FingerprintApi
      *
      * Update an event
      *
-     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id). (required)
+     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id). (required)
      * @param EventUpdate $event_update (required)
      *
      * @noinspection GrazieInspection
@@ -1561,7 +1770,7 @@ class FingerprintApi
      *
      * Update an event
      *
-     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id). (required)
+     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id). (required)
      * @param EventUpdate $event_update (required)
      *
      * @noinspection GrazieInspection
@@ -1585,7 +1794,7 @@ class FingerprintApi
      *
      * Update an event
      *
-     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id). (required)
+     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id). (required)
      * @param EventUpdate $event_update (required)
      *
      * @noinspection GrazieInspection
@@ -1635,7 +1844,7 @@ class FingerprintApi
     /**
      * Create request for operation 'updateEvent'.
      *
-     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id). (required)
+     * @param string      $event_id     The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id). (required)
      * @param EventUpdate $event_update (required)
      *
      * @noinspection GrazieInspection
@@ -1707,6 +1916,87 @@ class FingerprintApi
         }
 
         return $options;
+    }
+
+    /**
+     * Handle error responses for operation 'analyzeRequestForAutomationIntelligence'.
+     *
+     * @param ApiException $e the API exception to handle
+     *
+     * @throws ApiException                  always rethrown after setting error details
+     * @throws \DateMalformedStringException
+     *
+     * @noinspection PhpDuplicateSwitchCaseBodyInspection
+     * @noinspection RedundantSuppression
+     */
+    private function handleAnalyzeRequestForAutomationIntelligenceError(ApiException $e): never
+    {
+        $response = $e->getResponseObject();
+
+        if (null !== $response) {
+            $errorCode = $e->getCode();
+
+            $content = (string) $response->getBody();
+            $response->getBody()->rewind();
+
+            switch ($errorCode) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $content,
+                        '\Fingerprint\ServerSdk\Model\EventEdge'
+                    );
+                    $e->setErrorDetails($data);
+
+                    throw $e;
+
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $content,
+                        '\Fingerprint\ServerSdk\Model\ErrorResponse'
+                    );
+                    $e->setErrorDetails($data);
+
+                    throw $e;
+
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $content,
+                        '\Fingerprint\ServerSdk\Model\ErrorResponse'
+                    );
+                    $e->setErrorDetails($data);
+
+                    throw $e;
+
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $content,
+                        '\Fingerprint\ServerSdk\Model\ErrorResponse'
+                    );
+                    $e->setErrorDetails($data);
+
+                    throw $e;
+
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $content,
+                        '\Fingerprint\ServerSdk\Model\ErrorResponse'
+                    );
+                    $e->setErrorDetails($data);
+
+                    throw $e;
+
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $content,
+                        '\Fingerprint\ServerSdk\Model\ErrorResponse'
+                    );
+                    $e->setErrorDetails($data);
+
+                    throw $e;
+            }
+        }
+
+        throw $e;
     }
 
     /**

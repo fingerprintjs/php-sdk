@@ -3,7 +3,8 @@
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 defaultBaseUrl="https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi"
-schemaUrl="${1:-$defaultBaseUrl/schemas/fingerprint-server-api-v4.yaml}"
+# Flattened Event (single object, source optional). start/end stay a date|int oneOf.
+schemaUrl="${1:-$defaultBaseUrl/schemas/fingerprint-server-api-v4-flat.yaml}"
 examplesBaseUrl="${2:-$defaultBaseUrl/examples}"
 
 mkdir -p ./res

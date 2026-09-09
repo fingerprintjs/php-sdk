@@ -1,6 +1,11 @@
 # Event Class
 
-Contains results from Fingerprint Identification and all active Smart Signals. Some Smart Signals are only supported for certain device types, these fields will be omitted for events not generated from the supported devices. Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details.
+An identification event (`source: device`) or an Automation Intelligence event (`source: edge`).
+
+Use `source` to tell them apart. Device events include Identification and device-derived Smart Signals. Edge events do not.
+
+Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details.
+
 
 ## Properties
 
@@ -8,17 +13,25 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **event_id** | **string** | Unique identifier of the user&#39;s request. The first portion of the event_id is a unix epoch milliseconds timestamp. |
 **timestamp** | **int** | Timestamp of the event with millisecond precision in Unix time. |
+**linked_id** | **string** | A customer-provided id that was sent with the request. | [optional]
+**tags** | **array<string,mixed>** | A customer-provided value or an object that was sent with the identification request or updated later. | [optional]
+**url** | **string** | Page URL from which the request was sent. | [optional]
+**bot_info** | [**\Fingerprint\ServerSdk\Model\BotInfo**](BotInfo.md) |  | [optional]
+**ip_info** | [**\Fingerprint\ServerSdk\Model\IPInfo**](IPInfo.md) |  | [optional]
+**proxy** | **bool** | IP address was used by a public proxy provider or belonged to a known recent residential proxy | [optional]
+**proxy_confidence** | [**\Fingerprint\ServerSdk\Model\ProxyConfidence**](ProxyConfidence.md) |  | [optional]
+**proxy_details** | [**\Fingerprint\ServerSdk\Model\ProxyDetails**](ProxyDetails.md) |  | [optional]
+**vpn** | **bool** | VPN or other anonymizing service has been used when sending the request. | [optional]
+**vpn_confidence** | [**\Fingerprint\ServerSdk\Model\VpnConfidence**](VpnConfidence.md) |  | [optional]
+**vpn_methods** | [**\Fingerprint\ServerSdk\Model\VpnMethods**](VpnMethods.md) |  | [optional]
 **source** | [**\Fingerprint\ServerSdk\Model\EventSource**](EventSource.md) |  | [optional]
 **incremental_identification_status** | [**\Fingerprint\ServerSdk\Model\IncrementalIdentificationStatus**](IncrementalIdentificationStatus.md) |  | [optional]
-**linked_id** | **string** | A customer-provided id that was sent with the request. | [optional]
 **environment_id** | **string** | Environment Id of the event. | [optional]
-**suspect** | **bool** | Field is &#x60;true&#x60; if you have previously set the &#x60;suspect&#x60; flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event). | [optional]
+**suspect** | **bool** | Field is &#x60;true&#x60; if you have previously set the &#x60;suspect&#x60; flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-update-event). | [optional]
 **sdk** | [**\Fingerprint\ServerSdk\Model\SDK**](SDK.md) |  | [optional]
 **replayed** | **bool** | &#x60;true&#x60; if we determined that this payload was replayed, &#x60;false&#x60; otherwise. | [optional]
 **identification** | [**\Fingerprint\ServerSdk\Model\Identification**](Identification.md) |  | [optional]
 **supplementary_id_high_recall** | [**\Fingerprint\ServerSdk\Model\SupplementaryIDHighRecall**](SupplementaryIDHighRecall.md) |  | [optional]
-**tags** | **array<string,mixed>** | A customer-provided value or an object that was sent with the identification request or updated later. | [optional]
-**url** | **string** | Page URL from which the request was sent. | [optional]
 **bundle_id** | **string** | Bundle Id of the iOS application integrated with the Fingerprint SDK for the event. | [optional]
 **package_name** | **string** | Package name of the Android application integrated with the Fingerprint SDK for the event. | [optional]
 **ip_address** | **string** | IP address of the requesting browser or bot. | [optional]
@@ -32,17 +45,12 @@ Name | Type | Description | Notes
 **active_call** | **bool** | Indicates whether the mobile device had an active call (cellular or VoIP) at the time of the request. Available from SDK 2.16.0+ on iOS and Android. | [optional]
 **bot** | [**\Fingerprint\ServerSdk\Model\BotResult**](BotResult.md) |  | [optional]
 **bot_type** | **string** | Additional classification of the bot type if detected. | [optional]
-**bot_info** | [**\Fingerprint\ServerSdk\Model\BotInfo**](BotInfo.md) |  | [optional]
 **cloned_app** | **bool** | Android specific cloned application detection. There are 2 values:  * &#x60;true&#x60; - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected). * &#x60;false&#x60; - No signs of cloned application detected or the client is not Android. | [optional]
 **developer_tools** | **bool** | &#x60;true&#x60; if the browser has DevTools open (Chrome, Firefox) or the Android/iOS device has Developer Tools enabled, &#x60;false&#x60; otherwise. | [optional]
 **emulator** | **bool** | Android specific emulator detection. There are 2 values:  * &#x60;true&#x60; - Emulated environment detected (e.g. launch inside of AVD).  * &#x60;false&#x60; - No signs of emulated environment detected or the client is not Android. | [optional]
 **factory_reset_timestamp** | **int** | The time of the most recent factory reset that happened on the **mobile device** is expressed as Unix epoch time. When a factory reset cannot be detected on the mobile device or when the request is initiated from a browser,  this field will correspond to the *epoch* time (i.e 1 Jan 1970 UTC) as a value of 0. See [Factory Reset Detection](https://docs.fingerprint.com/docs/smart-signals-reference#factory-reset-detection) to learn more about this Smart Signal. | [optional]
 **frida** | **bool** | [Frida](https://frida.re/docs/) detection for Android and iOS devices. There are 2 values: * &#x60;true&#x60; - Frida detected * &#x60;false&#x60; - No signs of Frida or the client is not a mobile device. | [optional]
 **ip_blocklist** | [**\Fingerprint\ServerSdk\Model\IPBlockList**](IPBlockList.md) |  | [optional]
-**ip_info** | [**\Fingerprint\ServerSdk\Model\IPInfo**](IPInfo.md) |  | [optional]
-**proxy** | **bool** | IP address was used by a public proxy provider or belonged to a known recent residential proxy | [optional]
-**proxy_confidence** | [**\Fingerprint\ServerSdk\Model\ProxyConfidence**](ProxyConfidence.md) |  | [optional]
-**proxy_details** | [**\Fingerprint\ServerSdk\Model\ProxyDetails**](ProxyDetails.md) |  | [optional]
 **proxy_ml_score** | **float** | Machine learning–based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive &#x60;proxy&#x60; detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). | [optional]
 **incognito** | **bool** | &#x60;true&#x60; if we detected incognito mode used in the browser, &#x60;false&#x60; otherwise. | [optional]
 **jailbroken** | **bool** | iOS specific jailbreak detection. There are 2 values:  * &#x60;true&#x60; - Jailbreak detected. * &#x60;false&#x60; - No signs of jailbreak or the client is not iOS. | [optional]
@@ -60,12 +68,9 @@ Name | Type | Description | Notes
 **velocity** | [**\Fingerprint\ServerSdk\Model\Velocity**](Velocity.md) |  | [optional]
 **virtual_machine** | **bool** | &#x60;true&#x60; if the request came from a browser running inside a virtual machine (e.g. VMWare), &#x60;false&#x60; otherwise. | [optional]
 **virtual_machine_ml_score** | **float** | Machine learning–based virtual machine score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive &#x60;virtual_machine&#x60; detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). | [optional]
-**vpn** | **bool** | VPN or other anonymizing service has been used when sending the request. | [optional]
-**vpn_confidence** | [**\Fingerprint\ServerSdk\Model\VpnConfidence**](VpnConfidence.md) |  | [optional]
 **vpn_ml_score** | **float** | Machine learning–based VPN score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive &#x60;vpn&#x60; detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). | [optional]
 **vpn_origin_timezone** | **string** | Local timezone which is used in timezone_mismatch method. | [optional]
 **vpn_origin_country** | **string** | Country of the request (Android SDK version &gt;&#x3D; 2.4.0, iOS SDK version &gt;&#x3D; 2.9.0, JS agent &gt;&#x3D; 3.12.9 / 4.0.2), ISO 3166 format or unknown. | [optional]
-**vpn_methods** | [**\Fingerprint\ServerSdk\Model\VpnMethods**](VpnMethods.md) |  | [optional]
 **high_activity_device** | **bool** | Flag indicating if the request came from a high-activity visitor. | [optional]
 **rare_device** | **bool** | &#x60;true&#x60; if the device is considered rare based on its combination of hardware and software attributes.  A device is classified as rare if it falls within the top 99.9 percentile (lowest-frequency segment) of observed traffic,  or if its configuration has not been previously seen (&#x60;not_seen&#x60;). &gt; This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). | [optional]
 **rare_device_percentile_bucket** | [**\Fingerprint\ServerSdk\Model\RareDevicePercentileBucket**](RareDevicePercentileBucket.md) |  | [optional]
