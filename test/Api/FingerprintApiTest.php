@@ -1527,15 +1527,15 @@ class FingerprintApiTest extends TestCase
     }
 
     /**
-     * Verifies a hostname-shaped event_id is treated as an opaque path segment
-     * and never changes the request's target host.
+     * Verifies an absolute-URL-shaped event_id is treated as an opaque path
+     * segment and never changes the request's target host.
      */
     public function testGetEventRequestDoesNotRedirectHostForEvilEventId(): void
     {
-        $request = $this->api->getEventRequest('domain.tld');
+        $request = $this->api->getEventRequest('https://domain.tld/evil');
 
         $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/v4/events/domain.tld', $request->getUri()->getPath());
+        $this->assertSame('/v4/events/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
     }
 
     /**
@@ -1563,15 +1563,15 @@ class FingerprintApiTest extends TestCase
     }
 
     /**
-     * Verifies a hostname-shaped event_id passed to updateEvent never changes
-     * the request's target host.
+     * Verifies an absolute-URL-shaped event_id passed to updateEvent never
+     * changes the request's target host.
      */
     public function testUpdateEventRequestDoesNotRedirectHostForEvilEventId(): void
     {
-        $request = $this->api->updateEventRequest('domain.tld', new EventUpdate());
+        $request = $this->api->updateEventRequest('https://domain.tld/evil', new EventUpdate());
 
         $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/v4/events/domain.tld', $request->getUri()->getPath());
+        $this->assertSame('/v4/events/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
     }
 
     /**
@@ -1588,15 +1588,15 @@ class FingerprintApiTest extends TestCase
     }
 
     /**
-     * Verifies a hostname-shaped visitor_id is treated as an opaque path
+     * Verifies an absolute-URL-shaped visitor_id is treated as an opaque path
      * segment and never changes the request's target host.
      */
     public function testDeleteVisitorDataRequestDoesNotRedirectHostForEvilVisitorId(): void
     {
-        $request = $this->api->deleteVisitorDataRequest('domain.tld');
+        $request = $this->api->deleteVisitorDataRequest('https://domain.tld/evil');
 
         $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/v4/visitors/domain.tld', $request->getUri()->getPath());
+        $this->assertSame('/v4/visitors/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
     }
 
     /**

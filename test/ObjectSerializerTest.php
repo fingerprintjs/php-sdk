@@ -322,12 +322,13 @@ class ObjectSerializerTest extends TestCase
     }
 
     /**
-     * A value that looks like a hostname must not be able to redirect the
-     * request elsewhere; it is just an encoded path segment.
+     * A value that looks like an absolute URL must not be able to redirect
+     * the request elsewhere; its scheme and slashes are encoded so it stays
+     * a single, inert path segment.
      */
     public function testToPathValueDoesNotDecodeHostLookingValue(): void
     {
-        $this->assertSame('domain.tld', ObjectSerializer::toPathValue('domain.tld'));
+        $this->assertSame('https%3A%2F%2Fdomain.tld%2Fevil', ObjectSerializer::toPathValue('https://domain.tld/evil'));
     }
 
     public function testToPathValueWithEmptyString(): void
