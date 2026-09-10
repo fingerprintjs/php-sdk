@@ -182,7 +182,7 @@ class ObjectSerializerTest extends TestCase
      * the request elsewhere; its scheme and slashes are encoded so it stays
      * a single, inert path segment.
      */
-    public function testToPathValueDoesNotDecodeHostLookingValue(): void
+    public function testToPathValueEncodesAbsoluteUrlValue(): void
     {
         $this->assertSame('https%3A%2F%2Fdomain.tld%2Fevil', ObjectSerializer::toPathValue('https://domain.tld/evil'));
     }

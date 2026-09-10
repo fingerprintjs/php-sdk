@@ -1348,6 +1348,26 @@ class FingerprintApiTest extends TestCase
     }
 
     /**
+     * Verifies an empty request_id passed to updateEvent still produces a
+     * distinct trailing segment instead of collapsing onto the bare /events
+     * collection endpoint.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testUpdateEventWithEmptyRequestIdDoesNotCallCollectionEndpoint(): void
+    {
+        $this->mockHandler->append(new Response(200));
+
+        $this->fingerprint_api->updateEvent(new EventsUpdateRequest(), '');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertNotSame('/events', $request->getUri()->getPath());
+        $this->assertSame('/events/', $request->getUri()->getPath());
+    }
+
+    /**
      * Verifies deleteVisitorData encodes a path-traversal visitor_id into a
      * single path segment rather than letting it escape to a sibling
      * resource.
