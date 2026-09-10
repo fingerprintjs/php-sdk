@@ -151,4 +151,44 @@ class ObjectSerializerTest extends TestCase
         $vars = get_object_vars($sanitized);
         $this->assertEmpty($vars);
     }
+
+    public function testToPathValue(): void
+    {
+        $this->assertSame('hello%20world', ObjectSerializer::toPathValue('hello world'));
+        $this->assertSame('simple', ObjectSerializer::toPathValue('simple'));
+    }
+
+    /**
+     * Verifies path traversal sequences are encoded so a single path segment
+     * cannot escape into a sibling resource (e.g. `../events`).
+     */
+    public function testToPathValueEncodesPathTraversal(): void
+    {
+        $this->assertSame('..%2Fevents', ObjectSerializer::toPathValue('../events'));
+        $this->assertSame('..%2F..%2Fevents', ObjectSerializer::toPathValue('../../events'));
+    }
+
+    /**
+     * Verifies slashes are always encoded, since an un-encoded slash would let
+     * a path parameter inject extra path segments.
+     */
+    public function testToPathValueEncodesSlash(): void
+    {
+        $this->assertSame('abc%2Fdef', ObjectSerializer::toPathValue('abc/def'));
+    }
+
+    /**
+     * A value that looks like an absolute URL must not be able to redirect
+     * the request elsewhere; its scheme and slashes are encoded so it stays
+     * a single, inert path segment.
+     */
+    public function testToPathValueDoesNotDecodeHostLookingValue(): void
+    {
+        $this->assertSame('https%3A%2F%2Fdomain.tld%2Fevil', ObjectSerializer::toPathValue('https://domain.tld/evil'));
+    }
+
+    public function testToPathValueWithEmptyString(): void
+    {
+        $this->assertSame('', ObjectSerializer::toPathValue(''));
+    }
 }

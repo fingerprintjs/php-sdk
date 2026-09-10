@@ -1252,6 +1252,217 @@ class FingerprintApiTest extends TestCase
         }
     }
 
+    /**
+     * Verifies getEvent encodes a path-traversal request_id into a single
+     * path segment rather than letting it escape to a sibling resource.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testGetEventEncodesPathTraversalRequestId(): void
+    {
+        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
+
+        $this->fingerprint_api->getEvent('../events');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/events/..%2Fevents', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies an absolute-URL-shaped request_id is treated as an opaque path
+     * segment and never changes the request's target host.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testGetEventDoesNotRedirectHostForRequestId(): void
+    {
+        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
+
+        $this->fingerprint_api->getEvent('https://domain.tld/evil');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/events/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies an empty request_id still produces a distinct trailing segment
+     * instead of collapsing onto the bare /events collection endpoint.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testGetEventWithEmptyRequestIdDoesNotCallCollectionEndpoint(): void
+    {
+        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
+
+        $this->fingerprint_api->getEvent('');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertNotSame('/events', $request->getUri()->getPath());
+        $this->assertSame('/events/', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies updateEvent encodes a path-traversal request_id the same way
+     * as the read path.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testUpdateEventEncodesPathTraversalRequestId(): void
+    {
+        $this->mockHandler->append(new Response(200));
+
+        $this->fingerprint_api->updateEvent(new EventsUpdateRequest(), '../events');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/events/..%2Fevents', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies an absolute-URL-shaped request_id passed to updateEvent never
+     * changes the request's target host.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testUpdateEventDoesNotRedirectHostForRequestId(): void
+    {
+        $this->mockHandler->append(new Response(200));
+
+        $this->fingerprint_api->updateEvent(new EventsUpdateRequest(), 'https://domain.tld/evil');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/events/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies deleteVisitorData encodes a path-traversal visitor_id into a
+     * single path segment rather than letting it escape to a sibling
+     * resource.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testDeleteVisitorDataEncodesPathTraversalVisitorId(): void
+    {
+        $this->mockHandler->append(new Response(200));
+
+        $this->fingerprint_api->deleteVisitorData('../visitors');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/visitors/..%2Fvisitors', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies an absolute-URL-shaped visitor_id is treated as an opaque path
+     * segment and never changes the request's target host.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testDeleteVisitorDataDoesNotRedirectHostForVisitorId(): void
+    {
+        $this->mockHandler->append(new Response(200));
+
+        $this->fingerprint_api->deleteVisitorData('https://domain.tld/evil');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/visitors/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies an empty visitor_id still produces a distinct trailing segment
+     * instead of collapsing onto the bare /visitors collection endpoint.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testDeleteVisitorDataWithEmptyVisitorIdDoesNotCallCollectionEndpoint(): void
+    {
+        $this->mockHandler->append(new Response(200));
+
+        $this->fingerprint_api->deleteVisitorData('');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertNotSame('/visitors', $request->getUri()->getPath());
+        $this->assertSame('/visitors/', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies getVisits encodes a path-traversal visitor_id into a single
+     * path segment rather than letting it escape to a sibling resource.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testGetVisitsEncodesPathTraversalVisitorId(): void
+    {
+        $this->mockHandler->append($this->getMockResponse(self::MOCK_VISITOR_ID));
+
+        $this->fingerprint_api->getVisits('../visitors');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/visitors/..%2Fvisitors', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies an absolute-URL-shaped visitor_id passed to getVisits never
+     * changes the request's target host.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testGetVisitsDoesNotRedirectHostForVisitorId(): void
+    {
+        $this->mockHandler->append($this->getMockResponse(self::MOCK_VISITOR_ID));
+
+        $this->fingerprint_api->getVisits('https://domain.tld/evil');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/visitors/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies an empty visitor_id passed to getVisits still produces a
+     * distinct trailing segment instead of collapsing onto the bare
+     * /visitors collection endpoint.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testGetVisitsWithEmptyVisitorIdDoesNotCallCollectionEndpoint(): void
+    {
+        $this->mockHandler->append($this->getMockResponse(self::MOCK_VISITOR_ID));
+
+        $this->fingerprint_api->getVisits('');
+
+        $request = $this->mockHandler->getLastRequest();
+        $this->assertNotSame('/visitors', $request->getUri()->getPath());
+        $this->assertSame('/visitors/', $request->getUri()->getPath());
+    }
+
     protected function getVersion()
     {
         $config_file = file_get_contents(__DIR__ . '/../composer.json');
