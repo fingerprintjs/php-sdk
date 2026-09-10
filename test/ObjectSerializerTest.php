@@ -302,6 +302,39 @@ class ObjectSerializerTest extends TestCase
         $this->assertSame('simple', ObjectSerializer::toPathValue('simple'));
     }
 
+    /**
+     * Verifies path traversal sequences are encoded so a single path segment
+     * cannot escape into a sibling resource (e.g. `../events`).
+     */
+    public function testToPathValueEncodesPathTraversal(): void
+    {
+        $this->assertSame('..%2Fevents', ObjectSerializer::toPathValue('../events'));
+        $this->assertSame('..%2F..%2Fevents', ObjectSerializer::toPathValue('../../events'));
+    }
+
+    /**
+     * Verifies slashes are always encoded, since an un-encoded slash would let
+     * a path parameter inject extra path segments.
+     */
+    public function testToPathValueEncodesSlash(): void
+    {
+        $this->assertSame('abc%2Fdef', ObjectSerializer::toPathValue('abc/def'));
+    }
+
+    /**
+     * A value that looks like a hostname must not be able to redirect the
+     * request elsewhere; it is just an encoded path segment.
+     */
+    public function testToPathValueDoesNotDecodeHostLookingValue(): void
+    {
+        $this->assertSame('domain.tld', ObjectSerializer::toPathValue('domain.tld'));
+    }
+
+    public function testToPathValueWithEmptyString(): void
+    {
+        $this->assertSame('', ObjectSerializer::toPathValue(''));
+    }
+
     // -- toHeaderValue --
 
     public function testToHeaderValueWithString(): void

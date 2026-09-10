@@ -1514,6 +1514,103 @@ class FingerprintApiTest extends TestCase
         $this->api->updateEvent('test', new EventUpdate());
     }
 
+    /**
+     * Verifies getEventRequest encodes a path-traversal event_id into a single
+     * path segment rather than letting it escape to a sibling resource.
+     */
+    public function testGetEventRequestEncodesPathTraversalEventId(): void
+    {
+        $request = $this->api->getEventRequest('../events');
+
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/v4/events/..%2Fevents', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies a hostname-shaped event_id is treated as an opaque path segment
+     * and never changes the request's target host.
+     */
+    public function testGetEventRequestDoesNotRedirectHostForEvilEventId(): void
+    {
+        $request = $this->api->getEventRequest('domain.tld');
+
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/v4/events/domain.tld', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies an empty event_id still produces a distinct trailing segment
+     * instead of collapsing onto the bare /events collection endpoint.
+     */
+    public function testGetEventRequestWithEmptyEventIdDoesNotCallCollectionEndpoint(): void
+    {
+        $request = $this->api->getEventRequest('');
+
+        $this->assertNotSame('/v4/events', $request->getUri()->getPath());
+        $this->assertSame('/v4/events/', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies updateEventRequest encodes a path-traversal event_id the same
+     * way as the read path.
+     */
+    public function testUpdateEventRequestEncodesPathTraversalEventId(): void
+    {
+        $request = $this->api->updateEventRequest('../events', new EventUpdate());
+
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/v4/events/..%2Fevents', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies a hostname-shaped event_id passed to updateEvent never changes
+     * the request's target host.
+     */
+    public function testUpdateEventRequestDoesNotRedirectHostForEvilEventId(): void
+    {
+        $request = $this->api->updateEventRequest('domain.tld', new EventUpdate());
+
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/v4/events/domain.tld', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies deleteVisitorDataRequest encodes a path-traversal visitor_id
+     * into a single path segment rather than letting it escape to a sibling
+     * resource.
+     */
+    public function testDeleteVisitorDataRequestEncodesPathTraversalVisitorId(): void
+    {
+        $request = $this->api->deleteVisitorDataRequest('../visitors');
+
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/v4/visitors/..%2Fvisitors', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies a hostname-shaped visitor_id is treated as an opaque path
+     * segment and never changes the request's target host.
+     */
+    public function testDeleteVisitorDataRequestDoesNotRedirectHostForEvilVisitorId(): void
+    {
+        $request = $this->api->deleteVisitorDataRequest('domain.tld');
+
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame('/v4/visitors/domain.tld', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies an empty visitor_id still produces a distinct trailing segment
+     * instead of collapsing onto the bare /visitors collection endpoint.
+     */
+    public function testDeleteVisitorDataRequestWithEmptyVisitorIdDoesNotCallCollectionEndpoint(): void
+    {
+        $request = $this->api->deleteVisitorDataRequest('');
+
+        $this->assertNotSame('/v4/visitors', $request->getUri()->getPath());
+        $this->assertSame('/v4/visitors/', $request->getUri()->getPath());
+    }
+
     private function parseQueryString(string $query): array
     {
         $queryArray = [];
