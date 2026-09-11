@@ -9,6 +9,7 @@ use Fingerprint\ServerAPI\Model\ErrorCode;
 use Fingerprint\ServerAPI\Model\ErrorPlainResponse;
 use Fingerprint\ServerAPI\Model\ErrorResponse;
 use Fingerprint\ServerAPI\Model\EventsUpdateRequest;
+use Fingerprint\ServerAPI\Support\RawRequestCapture;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -16,6 +17,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use RuntimeException;
@@ -1481,6 +1483,218 @@ class FingerprintApiTest extends TestCase
         $request = $this->mockHandler->getLastRequest();
         $this->assertNotSame('/visitors', $request->getUri()->getPath());
         $this->assertSame('/visitors/', $request->getUri()->getPath());
+    }
+
+    /**
+     * Verifies a request_id of exactly '.' or '..' (an RFC 3986 dot-segment)
+     * is percent-encoded rather than left as a literal dot, which URL
+     * normalizers would otherwise be free to collapse.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testGetEventEncodesDotSegmentRequestId(): void
+    {
+        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
+        $this->fingerprint_api->getEvent('.');
+        $this->assertSame('/events/%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
+
+        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
+        $this->fingerprint_api->getEvent('..');
+        $this->assertSame('/events/%2E%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
+    }
+
+    /**
+     * Verifies a visitor_id of exactly '.' or '..' is percent-encoded the
+     * same way as request_id.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testDeleteVisitorDataEncodesDotSegmentVisitorId(): void
+    {
+        $this->mockHandler->append(new Response(200));
+        $this->fingerprint_api->deleteVisitorData('.');
+        $this->assertSame('/visitors/%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
+
+        $this->mockHandler->append(new Response(200));
+        $this->fingerprint_api->deleteVisitorData('..');
+        $this->assertSame('/visitors/%2E%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
+    }
+
+    /**
+     * Verifies updateEvent encodes a dot-segment request_id the same way as
+     * the read path.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testUpdateEventEncodesDotSegmentRequestId(): void
+    {
+        $this->mockHandler->append(new Response(200));
+        $this->fingerprint_api->updateEvent(new EventsUpdateRequest(), '.');
+        $this->assertSame('/events/%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
+    }
+
+    /**
+     * Verifies getVisits encodes a dot-segment visitor_id the same way as
+     * the other path-parameter methods.
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws SerializationException
+     */
+    public function testGetVisitsEncodesDotSegmentVisitorId(): void
+    {
+        $this->mockHandler->append($this->getMockResponse(self::MOCK_VISITOR_ID));
+        $this->fingerprint_api->getVisits('.');
+        $this->assertSame('/visitors/%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
+    }
+
+    /**
+     * Regression test for the actual wire-level bug: a PSR-7 Uri never
+     * normalizes dot-segments (asserting on $request->getUri()->getPath()
+     * alone would pass even without ObjectSerializer's encoding fix), but
+     * curl decodes and collapses them just before sending unless
+     * CURLOPT_PATH_AS_IS is set. This spins up a real local TCP listener and
+     * checks the literal bytes a real Guzzle+curl request puts on the wire,
+     * so it fails if either half of the fix (percent-encoding in
+     * ObjectSerializer::toPathValue, or CURLOPT_PATH_AS_IS in
+     * createHttpClientOption) is reverted.
+     */
+    #[Group('wire')]
+    public function testGetEventDoesNotCollapseDotRequestIdOnTheWire(): void
+    {
+        $capture = RawRequestCapture::start();
+
+        try {
+            $config = new Configuration();
+            $config->setHost($capture->baseUri());
+            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
+
+            try {
+                $api->getEvent('.');
+            } catch (\Throwable $e) {
+                // Only the request line on the wire matters for this test.
+            }
+
+            $requestLine = $capture->requestLine();
+            $this->assertNotNull($requestLine);
+            $this->assertStringStartsWith('GET /events/%2E?', $requestLine);
+        } finally {
+            $capture->stop();
+        }
+    }
+
+    /**
+     * @see testGetEventDoesNotCollapseDotRequestIdOnTheWire
+     */
+    #[Group('wire')]
+    public function testGetEventDoesNotCollapseDotDotRequestIdOnTheWire(): void
+    {
+        $capture = RawRequestCapture::start();
+
+        try {
+            $config = new Configuration();
+            $config->setHost($capture->baseUri());
+            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
+
+            try {
+                $api->getEvent('..');
+            } catch (\Throwable $e) {
+                // Only the request line on the wire matters for this test.
+            }
+
+            $requestLine = $capture->requestLine();
+            $this->assertNotNull($requestLine);
+            $this->assertStringStartsWith('GET /events/%2E%2E?', $requestLine);
+        } finally {
+            $capture->stop();
+        }
+    }
+
+    /**
+     * @see testGetEventDoesNotCollapseDotRequestIdOnTheWire
+     */
+    #[Group('wire')]
+    public function testDeleteVisitorDataDoesNotCollapseDotVisitorIdOnTheWire(): void
+    {
+        $capture = RawRequestCapture::start();
+
+        try {
+            $config = new Configuration();
+            $config->setHost($capture->baseUri());
+            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
+
+            try {
+                $api->deleteVisitorData('.');
+            } catch (\Throwable $e) {
+                // Only the request line on the wire matters for this test.
+            }
+
+            $requestLine = $capture->requestLine();
+            $this->assertNotNull($requestLine);
+            $this->assertStringStartsWith('DELETE /visitors/%2E?', $requestLine);
+        } finally {
+            $capture->stop();
+        }
+    }
+
+    /**
+     * @see testGetEventDoesNotCollapseDotRequestIdOnTheWire
+     */
+    #[Group('wire')]
+    public function testUpdateEventDoesNotCollapseDotRequestIdOnTheWire(): void
+    {
+        $capture = RawRequestCapture::start();
+
+        try {
+            $config = new Configuration();
+            $config->setHost($capture->baseUri());
+            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
+
+            try {
+                $api->updateEvent(new EventsUpdateRequest(), '.');
+            } catch (\Throwable $e) {
+                // Only the request line on the wire matters for this test.
+            }
+
+            $requestLine = $capture->requestLine();
+            $this->assertNotNull($requestLine);
+            $this->assertStringStartsWith('PUT /events/%2E?', $requestLine);
+        } finally {
+            $capture->stop();
+        }
+    }
+
+    /**
+     * @see testGetEventDoesNotCollapseDotRequestIdOnTheWire
+     */
+    #[Group('wire')]
+    public function testGetVisitsDoesNotCollapseDotVisitorIdOnTheWire(): void
+    {
+        $capture = RawRequestCapture::start();
+
+        try {
+            $config = new Configuration();
+            $config->setHost($capture->baseUri());
+            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
+
+            try {
+                $api->getVisits('.');
+            } catch (\Throwable $e) {
+                // Only the request line on the wire matters for this test.
+            }
+
+            $requestLine = $capture->requestLine();
+            $this->assertNotNull($requestLine);
+            $this->assertStringStartsWith('GET /visitors/%2E?', $requestLine);
+        } finally {
+            $capture->stop();
+        }
     }
 
     protected function getVersion()
