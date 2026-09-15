@@ -9,10 +9,10 @@
  *
  * @internal
  */
-
-$server = stream_socket_server("tcp://127.0.0.1:0", $errno, $errstr);
+$server = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
 if (!\is_resource($server)) {
     fwrite(STDERR, "listen failed: {$errstr}\n");
+
     exit(1);
 }
 
