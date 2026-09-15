@@ -3,41 +3,36 @@
 /**
  * Standalone one-shot TCP listener used by RawRequestCapture.
  *
- * Accepts a single connection, writes the raw request line + headers it
- * received to the given file, replies with a minimal 200 so the client
- * doesn't hang, then exits.
+ * Binds an ephemeral port, announces it on stdout, then accepts a single
+ * connection, echoes the raw request line it received back on stdout,
+ * replies with a minimal 200 so the client doesn't hang, and exits.
  *
  * @internal
  */
 
-[, $port, $captureFile] = $argv;
-
-$server = stream_socket_server("tcp://127.0.0.1:{$port}", $errno, $errstr);
+$server = stream_socket_server("tcp://127.0.0.1:0", $errno, $errstr);
 if (!\is_resource($server)) {
     fwrite(STDERR, "listen failed: {$errstr}\n");
     exit(1);
 }
 
-// Signal readiness over stdout rather than via a throwaway TCP connection,
-// since this listener only ever accepts a single (the real) connection.
-fwrite(STDOUT, "READY\n");
+$name = stream_socket_get_name($server, false);
+fwrite(STDOUT, 'READY '.substr($name, strrpos($name, ':') + 1)."\n");
 fflush(STDOUT);
 
 $conn = @stream_socket_accept($server, 5);
 if (\is_resource($conn)) {
     stream_set_timeout($conn, 2);
-    $request = '';
+
+    fwrite(STDOUT, rtrim((string) fgets($conn), "\r\n")."\n");
+    fflush(STDOUT);
+
     while (!feof($conn)) {
         $line = fgets($conn);
-        if (false === $line) {
-            break;
-        }
-        $request .= $line;
-        if ("\r\n" === $line || "\n" === $line) {
+        if (false === $line || "\r\n" === $line || "\n" === $line) {
             break;
         }
     }
-    file_put_contents($captureFile, $request);
 
     $body = '{}';
     fwrite(
