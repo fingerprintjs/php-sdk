@@ -457,7 +457,17 @@ use \GuzzleHttp\Exception\GuzzleException;
      */
     protected function createHttpClientOption(): array
     {
-        $options = [];
+        // Path parameters are percent-encoded (see ObjectSerializer::toPathValue()),
+        // but curl still decodes and collapses RFC 3986 dot-segments (e.g. a
+        // literal '.' or '..' path parameter) before the request is sent unless
+        // explicitly told not to. CURLOPT_PATH_AS_IS makes curl transmit the URL
+        // exactly as built, so an event/visitor ID can never be misrouted to a
+        // different endpoint via path normalization.
+        $options = [
+            'curl' => [
+                \CURLOPT_PATH_AS_IS => true,
+            ],
+        ];
         if ($this->config->getDebug()) {
             $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
             if (!$options[RequestOptions::DEBUG]) {
