@@ -17,6 +17,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -1255,303 +1256,50 @@ class FingerprintApiTest extends TestCase
     }
 
     /**
-     * Verifies getEvent encodes a path-traversal request_id into a single
-     * path segment rather than letting it escape to a sibling resource.
+     * Verifies a malformed path parameter (path traversal, an absolute URL,
+     * a bare dot-segment, or an empty string) is always percent-encoded into
+     * a single opaque path segment rather than being interpreted as part of
+     * the path structure, across every operation that takes an ID in the path.
      *
      * @throws ApiException
      * @throws GuzzleException
      * @throws SerializationException
      */
-    public function testGetEventEncodesPathTraversalRequestId(): void
+    #[DataProvider('pathParameterEncodingProvider')]
+    public function testPathParameterIsEncodedAsSingleOpaqueSegment(\Closure $call, ?string $mockId, string $value, string $expectedPath): void
     {
-        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
+        $this->mockHandler->append(null === $mockId ? new Response(200) : $this->getMockResponse($mockId));
 
-        $this->fingerprint_api->getEvent('../events');
+        $call($this->fingerprint_api, $value);
 
         $request = $this->mockHandler->getLastRequest();
         $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/events/..%2Fevents', $request->getUri()->getPath());
+        $this->assertSame($expectedPath, $request->getUri()->getPath());
     }
 
-    /**
-     * Verifies an absolute-URL-shaped request_id is treated as an opaque path
-     * segment and never changes the request's target host.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testGetEventDoesNotRedirectHostForRequestId(): void
+    public static function pathParameterEncodingProvider(): iterable
     {
-        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
+        $endpoints = [
+            'getEvent' => ['/events/', self::MOCK_REQUEST_ID, static fn (FingerprintApi $api, string $id) => $api->getEvent($id)],
+            'updateEvent' => ['/events/', null, static fn (FingerprintApi $api, string $id) => $api->updateEvent(new EventsUpdateRequest(), $id)],
+            'getVisits' => ['/visitors/', self::MOCK_VISITOR_ID, static fn (FingerprintApi $api, string $id) => $api->getVisits($id)],
+            'deleteVisitorData' => ['/visitors/', null, static fn (FingerprintApi $api, string $id) => $api->deleteVisitorData($id)],
+        ];
 
-        $this->fingerprint_api->getEvent('https://domain.tld/evil');
+        $values = [
+            'path traversal' => ['../events', '..%2Fevents'],
+            'nested path traversal' => ['../../events', '..%2F..%2Fevents'],
+            'absolute url' => ['https://domain.tld/evil', 'https%3A%2F%2Fdomain.tld%2Fevil'],
+            'dot segment' => ['.', '%2E'],
+            'parent dot segment' => ['..', '%2E%2E'],
+            'empty' => ['', ''],
+        ];
 
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/events/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an empty request_id still produces a distinct trailing segment
-     * instead of collapsing onto the bare /events collection endpoint.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testGetEventWithEmptyRequestIdDoesNotCallCollectionEndpoint(): void
-    {
-        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
-
-        $this->fingerprint_api->getEvent('');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertNotSame('/events', $request->getUri()->getPath());
-        $this->assertSame('/events/', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies updateEvent encodes a path-traversal request_id the same way
-     * as the read path.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testUpdateEventEncodesPathTraversalRequestId(): void
-    {
-        $this->mockHandler->append(new Response(200));
-
-        $this->fingerprint_api->updateEvent(new EventsUpdateRequest(), '../events');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/events/..%2Fevents', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an absolute-URL-shaped request_id passed to updateEvent never
-     * changes the request's target host.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testUpdateEventDoesNotRedirectHostForRequestId(): void
-    {
-        $this->mockHandler->append(new Response(200));
-
-        $this->fingerprint_api->updateEvent(new EventsUpdateRequest(), 'https://domain.tld/evil');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/events/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an empty request_id passed to updateEvent still produces a
-     * distinct trailing segment instead of collapsing onto the bare /events
-     * collection endpoint.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testUpdateEventWithEmptyRequestIdDoesNotCallCollectionEndpoint(): void
-    {
-        $this->mockHandler->append(new Response(200));
-
-        $this->fingerprint_api->updateEvent(new EventsUpdateRequest(), '');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertNotSame('/events', $request->getUri()->getPath());
-        $this->assertSame('/events/', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies deleteVisitorData encodes a path-traversal visitor_id into a
-     * single path segment rather than letting it escape to a sibling
-     * resource.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testDeleteVisitorDataEncodesPathTraversalVisitorId(): void
-    {
-        $this->mockHandler->append(new Response(200));
-
-        $this->fingerprint_api->deleteVisitorData('../visitors');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/visitors/..%2Fvisitors', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an absolute-URL-shaped visitor_id is treated as an opaque path
-     * segment and never changes the request's target host.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testDeleteVisitorDataDoesNotRedirectHostForVisitorId(): void
-    {
-        $this->mockHandler->append(new Response(200));
-
-        $this->fingerprint_api->deleteVisitorData('https://domain.tld/evil');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/visitors/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an empty visitor_id still produces a distinct trailing segment
-     * instead of collapsing onto the bare /visitors collection endpoint.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testDeleteVisitorDataWithEmptyVisitorIdDoesNotCallCollectionEndpoint(): void
-    {
-        $this->mockHandler->append(new Response(200));
-
-        $this->fingerprint_api->deleteVisitorData('');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertNotSame('/visitors', $request->getUri()->getPath());
-        $this->assertSame('/visitors/', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies getVisits encodes a path-traversal visitor_id into a single
-     * path segment rather than letting it escape to a sibling resource.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testGetVisitsEncodesPathTraversalVisitorId(): void
-    {
-        $this->mockHandler->append($this->getMockResponse(self::MOCK_VISITOR_ID));
-
-        $this->fingerprint_api->getVisits('../visitors');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/visitors/..%2Fvisitors', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an absolute-URL-shaped visitor_id passed to getVisits never
-     * changes the request's target host.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testGetVisitsDoesNotRedirectHostForVisitorId(): void
-    {
-        $this->mockHandler->append($this->getMockResponse(self::MOCK_VISITOR_ID));
-
-        $this->fingerprint_api->getVisits('https://domain.tld/evil');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/visitors/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an empty visitor_id passed to getVisits still produces a
-     * distinct trailing segment instead of collapsing onto the bare
-     * /visitors collection endpoint.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testGetVisitsWithEmptyVisitorIdDoesNotCallCollectionEndpoint(): void
-    {
-        $this->mockHandler->append($this->getMockResponse(self::MOCK_VISITOR_ID));
-
-        $this->fingerprint_api->getVisits('');
-
-        $request = $this->mockHandler->getLastRequest();
-        $this->assertNotSame('/visitors', $request->getUri()->getPath());
-        $this->assertSame('/visitors/', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies a request_id of exactly '.' or '..' (an RFC 3986 dot-segment)
-     * is percent-encoded rather than left as a literal dot, which URL
-     * normalizers would otherwise be free to collapse.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testGetEventEncodesDotSegmentRequestId(): void
-    {
-        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
-        $this->fingerprint_api->getEvent('.');
-        $this->assertSame('/events/%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
-
-        $this->mockHandler->append($this->getMockResponse(self::MOCK_REQUEST_ID));
-        $this->fingerprint_api->getEvent('..');
-        $this->assertSame('/events/%2E%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
-    }
-
-    /**
-     * Verifies a visitor_id of exactly '.' or '..' is percent-encoded the
-     * same way as request_id.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testDeleteVisitorDataEncodesDotSegmentVisitorId(): void
-    {
-        $this->mockHandler->append(new Response(200));
-        $this->fingerprint_api->deleteVisitorData('.');
-        $this->assertSame('/visitors/%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
-
-        $this->mockHandler->append(new Response(200));
-        $this->fingerprint_api->deleteVisitorData('..');
-        $this->assertSame('/visitors/%2E%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
-    }
-
-    /**
-     * Verifies updateEvent encodes a dot-segment request_id the same way as
-     * the read path.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testUpdateEventEncodesDotSegmentRequestId(): void
-    {
-        $this->mockHandler->append(new Response(200));
-        $this->fingerprint_api->updateEvent(new EventsUpdateRequest(), '.');
-        $this->assertSame('/events/%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
-    }
-
-    /**
-     * Verifies getVisits encodes a dot-segment visitor_id the same way as
-     * the other path-parameter methods.
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws SerializationException
-     */
-    public function testGetVisitsEncodesDotSegmentVisitorId(): void
-    {
-        $this->mockHandler->append($this->getMockResponse(self::MOCK_VISITOR_ID));
-        $this->fingerprint_api->getVisits('.');
-        $this->assertSame('/visitors/%2E', $this->mockHandler->getLastRequest()->getUri()->getPath());
+        foreach ($endpoints as $endpoint => [$prefix, $mockId, $call]) {
+            foreach ($values as $case => [$value, $encoded]) {
+                yield "{$endpoint}: {$case}" => [$call, $mockId, $value, $prefix.$encoded];
+            }
+        }
     }
 
     /**
@@ -1565,136 +1313,40 @@ class FingerprintApiTest extends TestCase
      * ObjectSerializer::toPathValue, or CURLOPT_PATH_AS_IS in
      * createHttpClientOption) is reverted.
      */
+    #[DataProvider('dotSegmentWireProvider')]
     #[Group('wire')]
-    public function testGetEventDoesNotCollapseDotRequestIdOnTheWire(): void
+    public function testDotSegmentIsNotCollapsedOnTheWire(\Closure $call, string $expectedPrefix): void
     {
         $capture = RawRequestCapture::start();
 
         try {
             $config = new Configuration();
             $config->setHost($capture->baseUri());
-            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
+            $api = new FingerprintApi(new Client(['timeout' => 10]), $config);
 
             try {
-                $api->getEvent('.');
+                $call($api);
             } catch (\Throwable $e) {
                 // Only the request line on the wire matters for this test.
             }
 
-            $requestLine = $capture->requestLine();
-            $this->assertNotNull($requestLine);
-            $this->assertStringStartsWith('GET /events/%2E?', $requestLine);
+            $this->assertStringStartsWith($expectedPrefix, $capture->requestLine());
         } finally {
             $capture->stop();
         }
     }
 
-    /**
-     * @see testGetEventDoesNotCollapseDotRequestIdOnTheWire
-     */
-    #[Group('wire')]
-    public function testGetEventDoesNotCollapseDotDotRequestIdOnTheWire(): void
+    public static function dotSegmentWireProvider(): iterable
     {
-        $capture = RawRequestCapture::start();
+        yield 'getEvent: dot segment' => [static fn (FingerprintApi $api) => $api->getEvent('.'), 'GET /events/%2E?'];
 
-        try {
-            $config = new Configuration();
-            $config->setHost($capture->baseUri());
-            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
+        yield 'getEvent: parent dot segment' => [static fn (FingerprintApi $api) => $api->getEvent('..'), 'GET /events/%2E%2E?'];
 
-            try {
-                $api->getEvent('..');
-            } catch (\Throwable $e) {
-                // Only the request line on the wire matters for this test.
-            }
+        yield 'updateEvent: dot segment' => [static fn (FingerprintApi $api) => $api->updateEvent(new EventsUpdateRequest(), '.'), 'PUT /events/%2E?'];
 
-            $requestLine = $capture->requestLine();
-            $this->assertNotNull($requestLine);
-            $this->assertStringStartsWith('GET /events/%2E%2E?', $requestLine);
-        } finally {
-            $capture->stop();
-        }
-    }
+        yield 'getVisits: dot segment' => [static fn (FingerprintApi $api) => $api->getVisits('.'), 'GET /visitors/%2E?'];
 
-    /**
-     * @see testGetEventDoesNotCollapseDotRequestIdOnTheWire
-     */
-    #[Group('wire')]
-    public function testDeleteVisitorDataDoesNotCollapseDotVisitorIdOnTheWire(): void
-    {
-        $capture = RawRequestCapture::start();
-
-        try {
-            $config = new Configuration();
-            $config->setHost($capture->baseUri());
-            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
-
-            try {
-                $api->deleteVisitorData('.');
-            } catch (\Throwable $e) {
-                // Only the request line on the wire matters for this test.
-            }
-
-            $requestLine = $capture->requestLine();
-            $this->assertNotNull($requestLine);
-            $this->assertStringStartsWith('DELETE /visitors/%2E?', $requestLine);
-        } finally {
-            $capture->stop();
-        }
-    }
-
-    /**
-     * @see testGetEventDoesNotCollapseDotRequestIdOnTheWire
-     */
-    #[Group('wire')]
-    public function testUpdateEventDoesNotCollapseDotRequestIdOnTheWire(): void
-    {
-        $capture = RawRequestCapture::start();
-
-        try {
-            $config = new Configuration();
-            $config->setHost($capture->baseUri());
-            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
-
-            try {
-                $api->updateEvent(new EventsUpdateRequest(), '.');
-            } catch (\Throwable $e) {
-                // Only the request line on the wire matters for this test.
-            }
-
-            $requestLine = $capture->requestLine();
-            $this->assertNotNull($requestLine);
-            $this->assertStringStartsWith('PUT /events/%2E?', $requestLine);
-        } finally {
-            $capture->stop();
-        }
-    }
-
-    /**
-     * @see testGetEventDoesNotCollapseDotRequestIdOnTheWire
-     */
-    #[Group('wire')]
-    public function testGetVisitsDoesNotCollapseDotVisitorIdOnTheWire(): void
-    {
-        $capture = RawRequestCapture::start();
-
-        try {
-            $config = new Configuration();
-            $config->setHost($capture->baseUri());
-            $api = new FingerprintApi(new Client(['timeout' => 2]), $config);
-
-            try {
-                $api->getVisits('.');
-            } catch (\Throwable $e) {
-                // Only the request line on the wire matters for this test.
-            }
-
-            $requestLine = $capture->requestLine();
-            $this->assertNotNull($requestLine);
-            $this->assertStringStartsWith('GET /visitors/%2E?', $requestLine);
-        } finally {
-            $capture->stop();
-        }
+        yield 'deleteVisitorData: dot segment' => [static fn (FingerprintApi $api) => $api->deleteVisitorData('.'), 'DELETE /visitors/%2E?'];
     }
 
     protected function getVersion()

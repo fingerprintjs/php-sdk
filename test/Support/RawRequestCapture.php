@@ -23,7 +23,7 @@ final class RawRequestCapture
 
     /** @var resource */
     private $stderr;
-    
+
     private string $buffer = '';
 
     private int $port;
@@ -57,7 +57,7 @@ final class RawRequestCapture
         }
 
         $capture = new self($process, $pipes[1], $pipes[2]);
-        
+
         try {
             $ready = $capture->readLine(10.0);
             if (!str_starts_with($ready, 'READY ')) {
@@ -111,7 +111,7 @@ final class RawRequestCapture
             }
             if (microtime(true) >= $deadline) {
                 throw new \RuntimeException('Timed out reading from the raw request listener. stderr: '.$this->stderrTail());
-        }
+            }
             usleep(5000);
         }
 
@@ -119,5 +119,12 @@ final class RawRequestCapture
         $this->buffer = substr($this->buffer, $eol + 1);
 
         return rtrim($line, "\r");
+    }
+
+    private function stderrTail(): string
+    {
+        $stderr = (string) @stream_get_contents($this->stderr);
+
+        return '' === $stderr ? '(empty)' : $stderr;
     }
 }
