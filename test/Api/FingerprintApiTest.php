@@ -36,6 +36,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -1517,144 +1518,42 @@ class FingerprintApiTest extends TestCase
     }
 
     /**
-     * Verifies getEventRequest encodes a path-traversal event_id into a single
-     * path segment rather than letting it escape to a sibling resource.
+     * Verifies a malformed path parameter (path traversal, an absolute URL,
+     * a bare dot-segment, or an empty string) is always percent-encoded into
+     * a single opaque path segment rather than being interpreted as part of
+     * the path structure, across every operation that takes an ID in the path.
      */
-    public function testGetEventRequestEncodesPathTraversalEventId(): void
+    #[DataProvider('pathParameterEncodingProvider')]
+    public function testPathParameterIsEncodedAsSingleOpaqueSegment(\Closure $buildRequest, string $value, string $expectedPath): void
     {
-        $request = $this->api->getEventRequest('../events');
+        $request = $buildRequest($this->api, $value);
 
         $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/v4/events/..%2Fevents', $request->getUri()->getPath());
+        $this->assertSame($expectedPath, $request->getUri()->getPath());
     }
 
-    /**
-     * Verifies an absolute-URL-shaped event_id is treated as an opaque path
-     * segment and never changes the request's target host.
-     */
-    public function testGetEventRequestDoesNotRedirectHostForEvilEventId(): void
+    public static function pathParameterEncodingProvider(): iterable
     {
-        $request = $this->api->getEventRequest('https://domain.tld/evil');
+        $endpoints = [
+            'getEventRequest' => ['/v4/events/', static fn (FingerprintApi $api, string $id) => $api->getEventRequest($id)],
+            'updateEventRequest' => ['/v4/events/', static fn (FingerprintApi $api, string $id) => $api->updateEventRequest($id, new EventUpdate())],
+            'deleteVisitorDataRequest' => ['/v4/visitors/', static fn (FingerprintApi $api, string $id) => $api->deleteVisitorDataRequest($id)],
+        ];
 
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/v4/events/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
-    }
+        $values = [
+            'path traversal' => ['../events', '..%2Fevents'],
+            'nested path traversal' => ['../../events', '..%2F..%2Fevents'],
+            'absolute url' => ['https://domain.tld/evil', 'https%3A%2F%2Fdomain.tld%2Fevil'],
+            'dot segment' => ['.', '%2E'],
+            'parent dot segment' => ['..', '%2E%2E'],
+            'empty' => ['', ''],
+        ];
 
-    /**
-     * Verifies an empty event_id still produces a distinct trailing segment
-     * instead of collapsing onto the bare /events collection endpoint.
-     */
-    public function testGetEventRequestWithEmptyEventIdDoesNotCallCollectionEndpoint(): void
-    {
-        $request = $this->api->getEventRequest('');
-
-        $this->assertNotSame('/v4/events', $request->getUri()->getPath());
-        $this->assertSame('/v4/events/', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies updateEventRequest encodes a path-traversal event_id the same
-     * way as the read path.
-     */
-    public function testUpdateEventRequestEncodesPathTraversalEventId(): void
-    {
-        $request = $this->api->updateEventRequest('../events', new EventUpdate());
-
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/v4/events/..%2Fevents', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an absolute-URL-shaped event_id passed to updateEvent never
-     * changes the request's target host.
-     */
-    public function testUpdateEventRequestDoesNotRedirectHostForEvilEventId(): void
-    {
-        $request = $this->api->updateEventRequest('https://domain.tld/evil', new EventUpdate());
-
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/v4/events/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an empty event_id passed to updateEvent still produces a
-     * distinct trailing segment instead of collapsing onto the bare /events
-     * collection endpoint.
-     */
-    public function testUpdateEventRequestWithEmptyEventIdDoesNotCallCollectionEndpoint(): void
-    {
-        $request = $this->api->updateEventRequest('', new EventUpdate());
-
-        $this->assertNotSame('/v4/events', $request->getUri()->getPath());
-        $this->assertSame('/v4/events/', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies deleteVisitorDataRequest encodes a path-traversal visitor_id
-     * into a single path segment rather than letting it escape to a sibling
-     * resource.
-     */
-    public function testDeleteVisitorDataRequestEncodesPathTraversalVisitorId(): void
-    {
-        $request = $this->api->deleteVisitorDataRequest('../visitors');
-
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/v4/visitors/..%2Fvisitors', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an absolute-URL-shaped visitor_id is treated as an opaque path
-     * segment and never changes the request's target host.
-     */
-    public function testDeleteVisitorDataRequestDoesNotRedirectHostForEvilVisitorId(): void
-    {
-        $request = $this->api->deleteVisitorDataRequest('https://domain.tld/evil');
-
-        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
-        $this->assertSame('/v4/visitors/https%3A%2F%2Fdomain.tld%2Fevil', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an empty visitor_id still produces a distinct trailing segment
-     * instead of collapsing onto the bare /visitors collection endpoint.
-     */
-    public function testDeleteVisitorDataRequestWithEmptyVisitorIdDoesNotCallCollectionEndpoint(): void
-    {
-        $request = $this->api->deleteVisitorDataRequest('');
-
-        $this->assertNotSame('/v4/visitors', $request->getUri()->getPath());
-        $this->assertSame('/v4/visitors/', $request->getUri()->getPath());
-    }
-
-    /**
-     * Verifies an event_id of exactly '.' or '..' (an RFC 3986 dot-segment)
-     * is percent-encoded rather than left as a literal dot, which URL
-     * normalizers would otherwise be free to collapse.
-     */
-    public function testGetEventRequestEncodesDotSegmentEventId(): void
-    {
-        $this->assertSame('/v4/events/%2E', $this->api->getEventRequest('.')->getUri()->getPath());
-        $this->assertSame('/v4/events/%2E%2E', $this->api->getEventRequest('..')->getUri()->getPath());
-    }
-
-    /**
-     * Verifies a visitor_id of exactly '.' or '..' is percent-encoded the
-     * same way as event_id.
-     */
-    public function testDeleteVisitorDataRequestEncodesDotSegmentVisitorId(): void
-    {
-        $this->assertSame('/v4/visitors/%2E', $this->api->deleteVisitorDataRequest('.')->getUri()->getPath());
-        $this->assertSame('/v4/visitors/%2E%2E', $this->api->deleteVisitorDataRequest('..')->getUri()->getPath());
-    }
-
-    /**
-     * Verifies updateEventRequest encodes a dot-segment event_id the same
-     * way as the read path.
-     */
-    public function testUpdateEventRequestEncodesDotSegmentEventId(): void
-    {
-        $path = $this->api->updateEventRequest('.', new EventUpdate())->getUri()->getPath();
-        $this->assertSame('/v4/events/%2E', $path);
+        foreach ($endpoints as $endpoint => [$prefix, $call]) {
+            foreach ($values as $case => [$value, $encoded]) {
+                yield "{$endpoint}: {$case}" => [$call, $value, $prefix.$encoded];
+            }
+        }
     }
 
     /**
@@ -1668,109 +1567,38 @@ class FingerprintApiTest extends TestCase
      * ObjectSerializer::toPathValue, or CURLOPT_PATH_AS_IS in
      * createHttpClientOption) is reverted.
      */
+    #[DataProvider('dotSegmentWireProvider')]
     #[Group('wire')]
-    public function testGetEventDoesNotCollapseDotEventIdOnTheWire(): void
+    public function testDotSegmentIsNotCollapsedOnTheWire(\Closure $call, string $expectedPrefix): void
     {
         $capture = RawRequestCapture::start();
 
         try {
             $config = new Configuration('test-api-key');
             $config->setHost($capture->baseUri().'/v4');
-            $api = new FingerprintApi($config, new Client(['timeout' => 2]));
+            $api = new FingerprintApi($config, new Client(['timeout' => 10]));
 
             try {
-                $api->getEvent('.');
+                $call($api);
             } catch (\Throwable $e) {
                 // Only the request line on the wire matters for this test.
             }
 
-            $requestLine = $capture->requestLine();
-            $this->assertNotNull($requestLine);
-            $this->assertStringStartsWith('GET /v4/events/%2E?', $requestLine);
+            $this->assertStringStartsWith($expectedPrefix, $capture->requestLine());
         } finally {
             $capture->stop();
         }
     }
 
-    /**
-     * @see testGetEventDoesNotCollapseDotEventIdOnTheWire
-     */
-    #[Group('wire')]
-    public function testGetEventDoesNotCollapseDotDotEventIdOnTheWire(): void
+    public static function dotSegmentWireProvider(): iterable
     {
-        $capture = RawRequestCapture::start();
+        yield 'getEvent: dot segment' => [static fn (FingerprintApi $api) => $api->getEvent('.'), 'GET /v4/events/%2E?'];
 
-        try {
-            $config = new Configuration('test-api-key');
-            $config->setHost($capture->baseUri().'/v4');
-            $api = new FingerprintApi($config, new Client(['timeout' => 2]));
+        yield 'getEvent: parent dot segment' => [static fn (FingerprintApi $api) => $api->getEvent('..'), 'GET /v4/events/%2E%2E?'];
 
-            try {
-                $api->getEvent('..');
-            } catch (\Throwable $e) {
-                // Only the request line on the wire matters for this test.
-            }
+        yield 'updateEvent: dot segment' => [static fn (FingerprintApi $api) => $api->updateEvent('.', new EventUpdate()), 'PATCH /v4/events/%2E?'];
 
-            $requestLine = $capture->requestLine();
-            $this->assertNotNull($requestLine);
-            $this->assertStringStartsWith('GET /v4/events/%2E%2E?', $requestLine);
-        } finally {
-            $capture->stop();
-        }
-    }
-
-    /**
-     * @see testGetEventDoesNotCollapseDotEventIdOnTheWire
-     */
-    #[Group('wire')]
-    public function testDeleteVisitorDataDoesNotCollapseDotVisitorIdOnTheWire(): void
-    {
-        $capture = RawRequestCapture::start();
-
-        try {
-            $config = new Configuration('test-api-key');
-            $config->setHost($capture->baseUri().'/v4');
-            $api = new FingerprintApi($config, new Client(['timeout' => 2]));
-
-            try {
-                $api->deleteVisitorData('.');
-            } catch (\Throwable $e) {
-                // Only the request line on the wire matters for this test.
-            }
-
-            $requestLine = $capture->requestLine();
-            $this->assertNotNull($requestLine);
-            $this->assertStringStartsWith('DELETE /v4/visitors/%2E?', $requestLine);
-        } finally {
-            $capture->stop();
-        }
-    }
-
-    /**
-     * @see testGetEventDoesNotCollapseDotEventIdOnTheWire
-     */
-    #[Group('wire')]
-    public function testUpdateEventDoesNotCollapseDotEventIdOnTheWire(): void
-    {
-        $capture = RawRequestCapture::start();
-
-        try {
-            $config = new Configuration('test-api-key');
-            $config->setHost($capture->baseUri().'/v4');
-            $api = new FingerprintApi($config, new Client(['timeout' => 2]));
-
-            try {
-                $api->updateEvent('.', new EventUpdate());
-            } catch (\Throwable $e) {
-                // Only the request line on the wire matters for this test.
-            }
-
-            $requestLine = $capture->requestLine();
-            $this->assertNotNull($requestLine);
-            $this->assertStringStartsWith('PATCH /v4/events/%2E?', $requestLine);
-        } finally {
-            $capture->stop();
-        }
+        yield 'deleteVisitorData: dot segment' => [static fn (FingerprintApi $api) => $api->deleteVisitorData('.'), 'DELETE /v4/visitors/%2E?'];
     }
 
     private function parseQueryString(string $query): array
