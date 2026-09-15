@@ -1,5 +1,11 @@
 # Fingerprint Pro Server PHP SDK
 
+## 6.13.1
+
+### Patch Changes
+
+- Fixed `request_id`/`visitor_id` values of exactly `.` or `..` being collapsed by curl's URL normalization before the request is sent, causing `getEvent`, `updateEvent`, `deleteVisitorData`, and `getVisits` to hit the wrong endpoint instead of the requested resource. ([8df3e94](https://github.com/fingerprintjs/fingerprint-pro-server-api-php-sdk/commit/8df3e94505ea6a19ba0a33af2f827e2d7f875d03))
+
 ## 6.13.0
 
 ### Minor Changes
