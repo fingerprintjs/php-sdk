@@ -21,37 +21,34 @@ final class RawRequestCapture
     /** @var resource */
     private $stdout;
 
-    private string $captureFile;
+    /** @var resource */
+    private $stderr;
+    
+    private string $buffer = '';
 
     private int $port;
 
     /**
      * @param resource $process
      * @param resource $stdout
+     * @param resource $stderr
      */
-    private function __construct($process, $stdout, string $captureFile, int $port)
+    private function __construct($process, $stdout, $stderr)
     {
         $this->process = $process;
         $this->stdout = $stdout;
-        $this->captureFile = $captureFile;
-        $this->port = $port;
+        $this->stderr = $stderr;
     }
 
     public static function start(): self
     {
-        $port = self::reserveFreePort();
-        $captureFile = tempnam(sys_get_temp_dir(), 'fp_raw_req_');
-        $listenerScript = __DIR__.'/raw_request_listener.php';
-
         $process = proc_open(
-            [PHP_BINARY, $listenerScript, (string) $port, $captureFile],
+            [PHP_BINARY, __DIR__.'/raw_request_listener.php'],
             [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
             $pipes
         );
 
         if (!\is_resource($process)) {
-            unlink($captureFile);
-
             throw new \RuntimeException('Failed to start raw request listener.');
         }
 
@@ -59,8 +56,19 @@ final class RawRequestCapture
             stream_set_blocking($pipe, false);
         }
 
-        $capture = new self($process, $pipes[1], $captureFile, $port);
-        $capture->waitUntilListening();
+        $capture = new self($process, $pipes[1], $pipes[2]);
+        
+        try {
+            $ready = $capture->readLine(10.0);
+            if (!str_starts_with($ready, 'READY ')) {
+                throw new \RuntimeException("Unexpected listener handshake: {$ready}");
+            }
+            $capture->port = (int) substr($ready, 6);
+        } catch (\Throwable $e) {
+            $capture->stop();
+
+            throw $e;
+        }
 
         return $capture;
     }
@@ -74,18 +82,9 @@ final class RawRequestCapture
      * Returns the raw request line (e.g. "GET /events/. HTTP/1.1")
      * once the listener has accepted and read one request.
      */
-    public function requestLine(): ?string
+    public function requestLine(): string
     {
-        $deadline = microtime(true) + 2.0;
-        while (microtime(true) < $deadline) {
-            $contents = @file_get_contents($this->captureFile);
-            if (false !== $contents && '' !== $contents) {
-                return strtok($contents, "\r\n");
-            }
-            usleep(10_000);
-        }
-
-        return null;
+        return $this->readLine(10.0);
     }
 
     public function stop(): void
@@ -94,35 +93,31 @@ final class RawRequestCapture
             proc_terminate($this->process);
             proc_close($this->process);
         }
-        if (file_exists($this->captureFile)) {
-            unlink($this->captureFile);
-        }
     }
 
-    private function waitUntilListening(): void
+    private function readLine(float $timeout): string
     {
-        $deadline = microtime(true) + 2.0;
-        $buffer = '';
-        while (microtime(true) < $deadline) {
-            $buffer .= (string) fread($this->stdout, 8192);
-            if (str_contains($buffer, "READY\n")) {
-                return;
+        $deadline = microtime(true) + $timeout;
+
+        while (false === ($eol = strpos($this->buffer, "\n"))) {
+            $chunk = fread($this->stdout, 8192);
+            if (false !== $chunk && '' !== $chunk) {
+                $this->buffer .= $chunk;
+
+                continue;
             }
-            usleep(10_000);
+            if (feof($this->stdout)) {
+                throw new \RuntimeException('Raw request listener exited early. stderr: '.$this->stderrTail());
+            }
+            if (microtime(true) >= $deadline) {
+                throw new \RuntimeException('Timed out reading from the raw request listener. stderr: '.$this->stderrTail());
+        }
+            usleep(5000);
         }
 
-        throw new \RuntimeException('Raw request listener did not start listening in time.');
-    }
+        $line = substr($this->buffer, 0, $eol);
+        $this->buffer = substr($this->buffer, $eol + 1);
 
-    private static function reserveFreePort(): int
-    {
-        $server = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
-        if (!\is_resource($server)) {
-            throw new \RuntimeException("Failed to reserve a free port: {$errstr}");
-        }
-        $name = stream_socket_get_name($server, false);
-        fclose($server);
-
-        return (int) substr($name, strrpos($name, ':') + 1);
+        return rtrim($line, "\r");
     }
 }
