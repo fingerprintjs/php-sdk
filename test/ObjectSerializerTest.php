@@ -302,6 +302,69 @@ class ObjectSerializerTest extends TestCase
         $this->assertSame('simple', ObjectSerializer::toPathValue('simple'));
     }
 
+    /**
+     * Verifies path traversal sequences are encoded so a single path segment
+     * cannot escape into a sibling resource (e.g. `../events`).
+     */
+    public function testToPathValueEncodesPathTraversal(): void
+    {
+        $this->assertSame('..%2Fevents', ObjectSerializer::toPathValue('../events'));
+        $this->assertSame('..%2F..%2Fevents', ObjectSerializer::toPathValue('../../events'));
+    }
+
+    /**
+     * Verifies slashes are always encoded, since an un-encoded slash would let
+     * a path parameter inject extra path segments.
+     */
+    public function testToPathValueEncodesSlash(): void
+    {
+        $this->assertSame('abc%2Fdef', ObjectSerializer::toPathValue('abc/def'));
+    }
+
+    /**
+     * A value that looks like an absolute URL must not be able to redirect
+     * the request elsewhere; its scheme and slashes are encoded so it stays
+     * a single, inert path segment.
+     */
+    public function testToPathValueEncodesAbsoluteUrlValue(): void
+    {
+        $this->assertSame('https%3A%2F%2Fdomain.tld%2Fevil', ObjectSerializer::toPathValue('https://domain.tld/evil'));
+    }
+
+    public function testToPathValueWithEmptyString(): void
+    {
+        $this->assertSame('', ObjectSerializer::toPathValue(''));
+    }
+
+    /**
+     * A path parameter of exactly '.' or '..' is an RFC 3986 dot-segment:
+     * left as a literal dot, URL normalizers (including curl, before the
+     * request ever reaches the wire — see RawRequestCapture-based tests in
+     * FingerprintApiTest) collapse it into the parent/current path instead
+     * of treating it as an opaque resource identifier. The dots must be
+     * percent-encoded so no normalizer can mistake the segment for one.
+     */
+    public function testToPathValueEncodesDotSegment(): void
+    {
+        $this->assertSame('%2E', ObjectSerializer::toPathValue('.'));
+    }
+
+    public function testToPathValueEncodesDotDotSegment(): void
+    {
+        $this->assertSame('%2E%2E', ObjectSerializer::toPathValue('..'));
+    }
+
+    /**
+     * Only a segment consisting solely of dots is special under RFC 3986;
+     * anything else containing a dot (e.g. a real event ID) must pass
+     * through unencoded, since '.' is otherwise a safe, unreserved character.
+     */
+    public function testToPathValueDoesNotEncodeDotsInOtherwiseNormalValues(): void
+    {
+        $this->assertSame('1708102555327.NLOjmg', ObjectSerializer::toPathValue('1708102555327.NLOjmg'));
+        $this->assertSame('...', ObjectSerializer::toPathValue('...'));
+    }
+
     // -- toHeaderValue --
 
     public function testToHeaderValueWithString(): void

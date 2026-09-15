@@ -26,6 +26,7 @@ use Fingerprint\ServerSdk\Model\SearchEventsSource;
 use Fingerprint\ServerSdk\Model\SearchEventsVpnConfidence;
 use Fingerprint\ServerSdk\Model\SupplementaryIDHighRecall;
 use Fingerprint\ServerSdk\Test\MockHelper;
+use Fingerprint\ServerSdk\Test\Support\RawRequestCapture;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -35,6 +36,8 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 
@@ -1512,6 +1515,90 @@ class FingerprintApiTest extends TestCase
         $this->expectExceptionCode(301);
 
         $this->api->updateEvent('test', new EventUpdate());
+    }
+
+    /**
+     * Verifies a malformed path parameter (path traversal, an absolute URL,
+     * a bare dot-segment, or an empty string) is always percent-encoded into
+     * a single opaque path segment rather than being interpreted as part of
+     * the path structure, across every operation that takes an ID in the path.
+     */
+    #[DataProvider('pathParameterEncodingProvider')]
+    public function testPathParameterIsEncodedAsSingleOpaqueSegment(\Closure $buildRequest, string $value, string $expectedPath): void
+    {
+        $request = $buildRequest($this->api, $value);
+
+        $this->assertSame('api.fpjs.io', $request->getUri()->getHost());
+        $this->assertSame($expectedPath, $request->getUri()->getPath());
+    }
+
+    public static function pathParameterEncodingProvider(): iterable
+    {
+        $endpoints = [
+            'getEventRequest' => ['/v4/events/', static fn (FingerprintApi $api, string $id) => $api->getEventRequest($id)],
+            'updateEventRequest' => ['/v4/events/', static fn (FingerprintApi $api, string $id) => $api->updateEventRequest($id, new EventUpdate())],
+            'deleteVisitorDataRequest' => ['/v4/visitors/', static fn (FingerprintApi $api, string $id) => $api->deleteVisitorDataRequest($id)],
+        ];
+
+        $values = [
+            'path traversal' => ['../events', '..%2Fevents'],
+            'nested path traversal' => ['../../events', '..%2F..%2Fevents'],
+            'absolute url' => ['https://domain.tld/evil', 'https%3A%2F%2Fdomain.tld%2Fevil'],
+            'dot segment' => ['.', '%2E'],
+            'parent dot segment' => ['..', '%2E%2E'],
+            'empty' => ['', ''],
+        ];
+
+        foreach ($endpoints as $endpoint => [$prefix, $call]) {
+            foreach ($values as $case => [$value, $encoded]) {
+                yield "{$endpoint}: {$case}" => [$call, $value, $prefix.$encoded];
+            }
+        }
+    }
+
+    /**
+     * Regression test for the actual wire-level bug: a PSR-7 Uri never
+     * normalizes dot-segments (asserting on $request->getUri()->getPath()
+     * alone would pass even without ObjectSerializer's encoding fix), but
+     * curl decodes and collapses them just before sending unless
+     * CURLOPT_PATH_AS_IS is set. This spins up a real local TCP listener and
+     * checks the literal bytes a real Guzzle+curl request puts on the wire,
+     * so it fails if either half of the fix (percent-encoding in
+     * ObjectSerializer::toPathValue, or CURLOPT_PATH_AS_IS in
+     * createHttpClientOption) is reverted.
+     */
+    #[DataProvider('dotSegmentWireProvider')]
+    #[Group('wire')]
+    public function testDotSegmentIsNotCollapsedOnTheWire(\Closure $call, string $expectedPrefix): void
+    {
+        $capture = RawRequestCapture::start();
+
+        try {
+            $config = new Configuration('test-api-key');
+            $config->setHost($capture->baseUri().'/v4');
+            $api = new FingerprintApi($config, new Client(['timeout' => 10]));
+
+            try {
+                $call($api);
+            } catch (\Throwable $e) {
+                // Only the request line on the wire matters for this test.
+            }
+
+            $this->assertStringStartsWith($expectedPrefix, $capture->requestLine());
+        } finally {
+            $capture->stop();
+        }
+    }
+
+    public static function dotSegmentWireProvider(): iterable
+    {
+        yield 'getEvent: dot segment' => [static fn (FingerprintApi $api) => $api->getEvent('.'), 'GET /v4/events/%2E?'];
+
+        yield 'getEvent: parent dot segment' => [static fn (FingerprintApi $api) => $api->getEvent('..'), 'GET /v4/events/%2E%2E?'];
+
+        yield 'updateEvent: dot segment' => [static fn (FingerprintApi $api) => $api->updateEvent('.', new EventUpdate()), 'PATCH /v4/events/%2E?'];
+
+        yield 'deleteVisitorData: dot segment' => [static fn (FingerprintApi $api) => $api->deleteVisitorData('.'), 'DELETE /v4/visitors/%2E?'];
     }
 
     private function parseQueryString(string $query): array

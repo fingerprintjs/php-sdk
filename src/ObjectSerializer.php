@@ -145,7 +145,18 @@ class ObjectSerializer
      */
     public static function toPathValue(string $value): string
     {
-        return rawurlencode(self::toString($value));
+        $encoded = rawurlencode(self::toString($value));
+
+        // '.' and '..' are RFC 3986 dot-segments: rawurlencode() leaves the
+        // literal dots untouched, but URL normalizers (e.g. curl, before the
+        // request ever hits the wire) collapse a path segment consisting
+        // solely of dots into '' or 'up one level'. Escaping the dots here
+        // keeps the segment inert without changing any other encoded value.
+        if ('.' === $encoded || '..' === $encoded) {
+            $encoded = str_replace('.', '%2E', $encoded);
+        }
+
+        return $encoded;
     }
 
     /**
