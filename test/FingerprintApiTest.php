@@ -17,8 +17,6 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Utils;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use RuntimeException;
@@ -1264,8 +1262,9 @@ class FingerprintApiTest extends TestCase
      * @throws ApiException
      * @throws GuzzleException
      * @throws SerializationException
+     *
+     * @dataProvider pathParameterEncodingProvider
      */
-    #[DataProvider('pathParameterEncodingProvider')]
     public function testPathParameterIsEncodedAsSingleOpaqueSegment(\Closure $call, ?string $mockId, string $value, string $expectedPath): void
     {
         $this->mockHandler->append(null === $mockId ? new Response(200) : $this->getMockResponse($mockId));
@@ -1312,9 +1311,11 @@ class FingerprintApiTest extends TestCase
      * so it fails if either half of the fix (percent-encoding in
      * ObjectSerializer::toPathValue, or CURLOPT_PATH_AS_IS in
      * createHttpClientOption) is reverted.
+     *
+     * @dataProvider dotSegmentWireProvider
+     *
+     * @group wire
      */
-    #[DataProvider('dotSegmentWireProvider')]
-    #[Group('wire')]
     public function testDotSegmentIsNotCollapsedOnTheWire(\Closure $call, string $expectedPrefix): void
     {
         $capture = RawRequestCapture::start();
