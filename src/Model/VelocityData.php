@@ -32,11 +32,11 @@ namespace Fingerprint\ServerSdk\Model;
 use Fingerprint\ServerSdk\ObjectSerializer;
 
 /**
- * Is absent if the velocity data could not be generated for the visitor Id.
+ * Is absent if the velocity data could not be generated for the visitor ID.
  *
  * @category Class
  *
- * @description Is absent if the velocity data could not be generated for the visitor Id.
+ * @description Is absent if the velocity data could not be generated for the visitor ID.
  *
  * @author   Fingerprint
  *

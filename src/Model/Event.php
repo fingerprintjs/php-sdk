@@ -92,6 +92,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_info' => '\Fingerprint\ServerSdk\Model\BotInfo',
         'cloned_app' => 'bool',
         'developer_tools' => 'bool',
+        'device_details' => '\Fingerprint\ServerSdk\Model\DeviceDetails',
         'emulator' => 'bool',
         'factory_reset_timestamp' => 'int',
         'frida' => 'bool',
@@ -169,6 +170,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_info' => null,
         'cloned_app' => null,
         'developer_tools' => null,
+        'device_details' => null,
         'emulator' => null,
         'factory_reset_timestamp' => 'int64',
         'frida' => null,
@@ -242,6 +244,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_info' => false,
         'cloned_app' => false,
         'developer_tools' => false,
+        'device_details' => false,
         'emulator' => false,
         'factory_reset_timestamp' => false,
         'frida' => false,
@@ -323,6 +326,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_info' => 'bot_info',
         'cloned_app' => 'cloned_app',
         'developer_tools' => 'developer_tools',
+        'device_details' => 'device_details',
         'emulator' => 'emulator',
         'factory_reset_timestamp' => 'factory_reset_timestamp',
         'frida' => 'frida',
@@ -396,6 +400,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_info' => 'setBotInfo',
         'cloned_app' => 'setClonedApp',
         'developer_tools' => 'setDeveloperTools',
+        'device_details' => 'setDeviceDetails',
         'emulator' => 'setEmulator',
         'factory_reset_timestamp' => 'setFactoryResetTimestamp',
         'frida' => 'setFrida',
@@ -469,6 +474,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_info' => 'getBotInfo',
         'cloned_app' => 'getClonedApp',
         'developer_tools' => 'getDeveloperTools',
+        'device_details' => 'getDeviceDetails',
         'emulator' => 'getEmulator',
         'factory_reset_timestamp' => 'getFactoryResetTimestamp',
         'frida' => 'getFrida',
@@ -551,6 +557,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         $this->setIfExists('bot_info', $data ?? [], null);
         $this->setIfExists('cloned_app', $data ?? [], null);
         $this->setIfExists('developer_tools', $data ?? [], null);
+        $this->setIfExists('device_details', $data ?? [], null);
         $this->setIfExists('emulator', $data ?? [], null);
         $this->setIfExists('factory_reset_timestamp', $data ?? [], null);
         $this->setIfExists('frida', $data ?? [], null);
@@ -834,7 +841,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     /**
      * Sets linked_id.
      *
-     * @param string $linked_id a customer-provided id that was sent with the request
+     * @param string $linked_id a customer-provided ID that was sent with the request
      *
      */
     public function setLinkedId(string $linked_id): self
@@ -856,7 +863,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     /**
      * Sets environment_id.
      *
-     * @param string $environment_id environment Id of the event
+     * @param string $environment_id environment ID of the event
      *
      */
     public function setEnvironmentId(string $environment_id): self
@@ -878,7 +885,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     /**
      * Sets suspect.
      *
-     * @param bool $suspect Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event).
+     * @param bool $suspect Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-update-event).
      *
      */
     public function setSuspect(bool $suspect): self
@@ -1033,7 +1040,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     /**
      * Sets bundle_id.
      *
-     * @param string $bundle_id bundle Id of the iOS application integrated with the Fingerprint SDK for the event
+     * @param string $bundle_id bundle ID of the iOS application integrated with the Fingerprint SDK for the event
      *
      */
     public function setBundleId(string $bundle_id): self
@@ -1369,6 +1376,28 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     public function setDeveloperTools(bool $developer_tools): self
     {
         $this->container['developer_tools'] = $developer_tools;
+
+        return $this;
+    }
+
+    /**
+     * Gets device_details.
+     *
+     */
+    public function getDeviceDetails(): ?DeviceDetails
+    {
+        return $this->container['device_details'];
+    }
+
+    /**
+     * Sets device_details.
+     *
+     * @param DeviceDetails $device_details device_details
+     *
+     */
+    public function setDeviceDetails(DeviceDetails $device_details): self
+    {
+        $this->container['device_details'] = $device_details;
 
         return $this;
     }

@@ -254,6 +254,7 @@ Class | Method | HTTP request | Description
  - [BotResult](docs/Model/BotResult.md)
  - [BrowserDetails](docs/Model/BrowserDetails.md)
  - [Canvas](docs/Model/Canvas.md)
+ - [DeviceDetails](docs/Model/DeviceDetails.md)
  - [Emoji](docs/Model/Emoji.md)
  - [Error](docs/Model/Error.md)
  - [ErrorCode](docs/Model/ErrorCode.md)

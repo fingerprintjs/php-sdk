@@ -35,17 +35,17 @@ use Fingerprint\ServerSdk\ObjectSerializer;
  * Sums key data points for a specific `visitor_id`, `ip_address` and `linked_id` at three distinct time
  * intervals: 5 minutes, 1 hour, and 24 hours as follows:
  *
- * - Number of distinct IP addresses associated to the visitor Id.
- * - Number of distinct linked Ids associated with the visitor Id.
- * - Number of distinct countries associated with the visitor Id.
- * - Number of identification events associated with the visitor Id.
+ * - Number of distinct IP addresses associated to the visitor ID.
+ * - Number of distinct linked IDs associated with the visitor ID.
+ * - Number of distinct countries associated with the visitor ID.
+ * - Number of identification events associated with the visitor ID.
  * - Number of identification events associated with the detected IP address.
- * - Number of distinct IP addresses associated with the provided linked Id.
- * - Number of distinct visitor Ids associated with the provided linked Id.
+ * - Number of distinct IP addresses associated with the provided linked ID.
+ * - Number of distinct visitor IDs associated with the provided linked ID.
  *
  * The `24_hours` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`,
  * `distinct_ip_by_linked_id` and `distinct_visitor_id_by_linked_id` will be omitted
- * if the number of `events` for the visitor Id in the last 24
+ * if the number of `events` for the visitor ID in the last 24
  * hours (`events.['24_hours']`) is higher than 20.000.
  *
  * All will not necessarily be returned in a response, some may be omitted if the
@@ -53,7 +53,7 @@ use Fingerprint\ServerSdk\ObjectSerializer;
  *
  * @category Class
  *
- * @description Sums key data points for a specific &#x60;visitor_id&#x60;, &#x60;ip_address&#x60; and &#x60;linked_id&#x60; at three distinct time intervals: 5 minutes, 1 hour, and 24 hours as follows:   - Number of distinct IP addresses associated to the visitor Id. - Number of distinct linked Ids associated with the visitor Id. - Number of distinct countries associated with the visitor Id. - Number of identification events associated with the visitor Id. - Number of identification events associated with the detected IP address. - Number of distinct IP addresses associated with the provided linked Id. - Number of distinct visitor Ids associated with the provided linked Id.  The &#x60;24_hours&#x60; interval of &#x60;distinct_ip&#x60;, &#x60;distinct_linked_id&#x60;, &#x60;distinct_country&#x60;, &#x60;distinct_ip_by_linked_id&#x60; and &#x60;distinct_visitor_id_by_linked_id&#x60; will be omitted  if the number of &#x60;events&#x60; for the visitor Id in the last 24 hours (&#x60;events.[&#39;24_hours&#39;]&#x60;) is higher than 20.000.  All will not necessarily be returned in a response, some may be omitted if the  associated event does not have the required data, such as a linked_id.
+ * @description Sums key data points for a specific &#x60;visitor_id&#x60;, &#x60;ip_address&#x60; and &#x60;linked_id&#x60; at three distinct time intervals: 5 minutes, 1 hour, and 24 hours as follows:   - Number of distinct IP addresses associated to the visitor ID. - Number of distinct linked IDs associated with the visitor ID. - Number of distinct countries associated with the visitor ID. - Number of identification events associated with the visitor ID. - Number of identification events associated with the detected IP address. - Number of distinct IP addresses associated with the provided linked ID. - Number of distinct visitor IDs associated with the provided linked ID.  The &#x60;24_hours&#x60; interval of &#x60;distinct_ip&#x60;, &#x60;distinct_linked_id&#x60;, &#x60;distinct_country&#x60;, &#x60;distinct_ip_by_linked_id&#x60; and &#x60;distinct_visitor_id_by_linked_id&#x60; will be omitted  if the number of &#x60;events&#x60; for the visitor ID in the last 24 hours (&#x60;events.[&#39;24_hours&#39;]&#x60;) is higher than 20.000.  All will not necessarily be returned in a response, some may be omitted if the  associated event does not have the required data, such as a linked_id.
  *
  * @author   Fingerprint
  *
