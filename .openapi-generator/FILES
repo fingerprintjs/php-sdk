@@ -8,6 +8,7 @@ docs/Model/BotInfoIdentity.md
 docs/Model/BotResult.md
 docs/Model/BrowserDetails.md
 docs/Model/Canvas.md
+docs/Model/DeviceDetails.md
 docs/Model/Emoji.md
 docs/Model/Error.md
 docs/Model/ErrorCode.md
@@ -74,6 +75,7 @@ src/Model/BotInfoIdentity.php
 src/Model/BotResult.php
 src/Model/BrowserDetails.php
 src/Model/Canvas.php
+src/Model/DeviceDetails.php
 src/Model/Emoji.php
 src/Model/Error.php
 src/Model/ErrorCode.php

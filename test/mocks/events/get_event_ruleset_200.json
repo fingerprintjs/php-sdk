@@ -185,6 +185,11 @@
     }
   },
   "developer_tools": false,
+  "device_details": {
+    "device_manufacturer": "samsung",
+    "device_model": "SM-G991U",
+    "os_version": "13"
+  },
   "mitm_attack": false,
   "sdk": {
     "platform": "js",

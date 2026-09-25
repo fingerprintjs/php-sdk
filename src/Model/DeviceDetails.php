@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LabelsInner.
+ * DeviceDetails.
  *
  * @category Class
  *
@@ -32,9 +32,11 @@ namespace Fingerprint\ServerSdk\Model;
 use Fingerprint\ServerSdk\ObjectSerializer;
 
 /**
- * LabelsInner Class.
+ * Native, SDK-collected mobile device identification signals (manufacturer, model, and OS version). Structurally separate from the top-level `device`, `os`, and `os_version` fields and from `browser_details`, all of which are derived from user-agent parsing rather than native SDK signals.
  *
  * @category Class
+ *
+ * @description Native, SDK-collected mobile device identification signals (manufacturer, model, and OS version). Structurally separate from the top-level &#x60;device&#x60;, &#x60;os&#x60;, and &#x60;os_version&#x60; fields and from &#x60;browser_details&#x60;, all of which are derived from user-agent parsing rather than native SDK signals.
  *
  * @author   Fingerprint
  *
@@ -45,7 +47,7 @@ use Fingerprint\ServerSdk\ObjectSerializer;
  * @noinspection GrazieInspection
  * @noinspection RedundantSuppression
  */
-class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
+class DeviceDetails implements ModelInterface, \ArrayAccess, \JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -53,7 +55,7 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
      * The original name of the model.
      *
      */
-    protected static string $openAPIModelName = 'Labels_inner';
+    protected static string $openAPIModelName = 'DeviceDetails';
 
     /**
      * Array of property to type mappings. Used for (de)serialization.
@@ -61,9 +63,9 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
      * @var string[]
      */
     protected static array $openAPITypes = [
-        'label' => 'string',
-        'prediction' => 'bool',
-        'ml_score' => 'float',
+        'device_manufacturer' => 'string',
+        'device_model' => 'string',
+        'os_version' => 'string',
     ];
 
     /**
@@ -76,9 +78,9 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
      * @psalm-var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'label' => null,
-        'prediction' => null,
-        'ml_score' => 'double',
+        'device_manufacturer' => null,
+        'device_model' => null,
+        'os_version' => null,
     ];
 
     /**
@@ -87,9 +89,9 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
      * @var bool[]
      */
     protected static array $openAPINullables = [
-        'label' => false,
-        'prediction' => false,
-        'ml_score' => false,
+        'device_manufacturer' => false,
+        'device_model' => false,
+        'os_version' => false,
     ];
 
     /**
@@ -106,9 +108,9 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
      * @var string[]
      */
     protected static array $attributeMap = [
-        'label' => 'label',
-        'prediction' => 'prediction',
-        'ml_score' => 'ml_score',
+        'device_manufacturer' => 'device_manufacturer',
+        'device_model' => 'device_model',
+        'os_version' => 'os_version',
     ];
 
     /**
@@ -117,9 +119,9 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
      * @var string[]
      */
     protected static array $setters = [
-        'label' => 'setLabel',
-        'prediction' => 'setPrediction',
-        'ml_score' => 'setMlScore',
+        'device_manufacturer' => 'setDeviceManufacturer',
+        'device_model' => 'setDeviceModel',
+        'os_version' => 'setOsVersion',
     ];
 
     /**
@@ -128,9 +130,9 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
      * @var string[]
      */
     protected static array $getters = [
-        'label' => 'getLabel',
-        'prediction' => 'getPrediction',
-        'ml_score' => 'getMlScore',
+        'device_manufacturer' => 'getDeviceManufacturer',
+        'device_model' => 'getDeviceModel',
+        'os_version' => 'getOsVersion',
     ];
 
     /**
@@ -148,9 +150,9 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('label', $data ?? [], null);
-        $this->setIfExists('prediction', $data ?? [], null);
-        $this->setIfExists('ml_score', $data ?? [], null);
+        $this->setIfExists('device_manufacturer', $data ?? [], null);
+        $this->setIfExists('device_model', $data ?? [], null);
+        $this->setIfExists('os_version', $data ?? [], null);
     }
 
     /**
@@ -244,20 +246,7 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
      */
     public function listInvalidProperties(): array
     {
-        $invalidProperties = [];
-
-        if (null === $this->container['label']) {
-            $invalidProperties[] = "'label' can't be null";
-        }
-        if (!is_null($this->container['ml_score']) && ($this->container['ml_score'] > 1)) {
-            $invalidProperties[] = "invalid value for 'ml_score', must be smaller than or equal to 1.";
-        }
-
-        if (!is_null($this->container['ml_score']) && ($this->container['ml_score'] < 0)) {
-            $invalidProperties[] = "invalid value for 'ml_score', must be bigger than or equal to 0.";
-        }
-
-        return $invalidProperties;
+        return [];
     }
 
     /**
@@ -272,74 +261,67 @@ class LabelsInner implements ModelInterface, \ArrayAccess, \JsonSerializable
     }
 
     /**
-     * Gets label.
+     * Gets device_manufacturer.
      *
      */
-    public function getLabel(): ?string
+    public function getDeviceManufacturer(): ?string
     {
-        return $this->container['label'];
+        return $this->container['device_manufacturer'];
     }
 
     /**
-     * Sets label.
+     * Sets device_manufacturer.
      *
-     * @param string $label customer-facing label name defined by the customer
+     * @param string $device_manufacturer Raw device manufacturer string as reported by the device OS. Not normalized: casing is vendor-defined (samsung, Xiaomi, OPPO, HUAWEI). Always `Apple` on iOS.
      *
      */
-    public function setLabel(string $label): self
+    public function setDeviceManufacturer(string $device_manufacturer): self
     {
-        $this->container['label'] = $label;
+        $this->container['device_manufacturer'] = $device_manufacturer;
 
         return $this;
     }
 
     /**
-     * Gets prediction.
+     * Gets device_model.
      *
      */
-    public function getPrediction(): ?bool
+    public function getDeviceModel(): ?string
     {
-        return $this->container['prediction'];
+        return $this->container['device_model'];
     }
 
     /**
-     * Sets prediction.
+     * Sets device_model.
      *
-     * @param bool $prediction prediction
+     * @param string $device_model raw device model identifier, as reported by the mobile OS
      *
      */
-    public function setPrediction(bool $prediction): self
+    public function setDeviceModel(string $device_model): self
     {
-        $this->container['prediction'] = $prediction;
+        $this->container['device_model'] = $device_model;
 
         return $this;
     }
 
     /**
-     * Gets ml_score.
+     * Gets os_version.
      *
      */
-    public function getMlScore(): ?float
+    public function getOsVersion(): ?string
     {
-        return $this->container['ml_score'];
+        return $this->container['os_version'];
     }
 
     /**
-     * Sets ml_score.
+     * Sets os_version.
      *
-     * @param float $ml_score raw model score between 0 and 1
+     * @param string $os_version Mobile operating system version. Component count is not fixed and must not be assumed by consumers: iOS always reports `major.minor.patch` (e.g. `17.4.1`), while Android's precision varies by OS era and which raw signal resolved it — `major` only (`9`, `13`) since Android 10 dropped point releases, `major.minor` (`16.1`) from Android 16 (API 36+) reintroducing a minor component, or a genuine `major.minor.patch` (`8.1.0`) on pre-Android 10 devices that shipped real point releases. Never a fabricated/zero-padded component.
      *
      */
-    public function setMlScore(float $ml_score): self
+    public function setOsVersion(string $os_version): self
     {
-        if ($ml_score > 1) {
-            throw new \InvalidArgumentException('invalid value for $ml_score when calling LabelsInner., must be smaller than or equal to 1.');
-        }
-        if ($ml_score < 0) {
-            throw new \InvalidArgumentException('invalid value for $ml_score when calling LabelsInner., must be bigger than or equal to 0.');
-        }
-
-        $this->container['ml_score'] = $ml_score;
+        $this->container['os_version'] = $os_version;
 
         return $this;
     }

@@ -61,7 +61,7 @@ paths:
             example: 1708102555327.NLOjmg
           description: >-
             The unique
-            [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id)
+            [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id)
             of each identification request (`requestId` can be used in its
             place).
         - name: ruleset_id
@@ -86,7 +86,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Event'
         '400':
-          description: Bad request. The event Id provided is not valid.
+          description: Bad request. The event ID provided is not valid.
           content:
             application/json:
               schema:
@@ -98,7 +98,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Not found. The event Id cannot be found in this workspace's data.
+          description: Not found. The event ID cannot be found in this workspace's data.
           content:
             application/json:
               schema:
@@ -165,7 +165,7 @@ paths:
             example: 1708102555327.NLOjmg
           description: >-
             The unique event
-            [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id).
+            [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id).
       requestBody:
         required: true
         content:
@@ -188,7 +188,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Not found. The event Id cannot be found in this workspace's data.
+          description: Not found. The event ID cannot be found in this workspace's data.
           content:
             application/json:
               schema:
@@ -317,7 +317,7 @@ paths:
             example: Ibk1527CUFmcnjLwIs4A9
           description: >
             Unique [visitor
-            identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id)
+            identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id)
             issued by Fingerprint Identification and all active Smart Signals.
 
 
@@ -492,9 +492,9 @@ paths:
 
 
             You can use [linked
-            Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid)
+            IDs](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid)
             to associate identification requests with your own identifier, for
-            example, session Id, purchase Id, or transaction Id. You can then
+            example, session ID, purchase ID, or transaction ID. You can then
             use this `linked_id` parameter to retrieve all events associated
             with your custom identifier.
         - name: url
@@ -1110,7 +1110,7 @@ paths:
             example: Ibk1527CUFmcnjLwIs4A9
           description: >-
             The [visitor
-            ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id)
+            ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id)
             you want to delete.
       responses:
         '200':
@@ -1155,7 +1155,7 @@ components:
       type: string
       examples:
         - somelinkedId
-      description: A customer-provided id that was sent with the request.
+      description: A customer-provided ID that was sent with the request.
     Tags:
       type: object
       description: >-
@@ -1709,13 +1709,13 @@ components:
       type: string
       examples:
         - ae_47abaca3db2c7c43
-      description: Environment Id of the event.
+      description: Environment ID of the event.
     Suspect:
       type: boolean
       description: >-
         Field is `true` if you have previously set the `suspect` flag for this
         event using the [Server API Update event
-        endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event).
+        endpoint](https://docs.fingerprint.com/reference/server-api-update-event).
     Integration:
       type: object
       required: []
@@ -1894,7 +1894,7 @@ components:
       examples:
         - com.foo.app
       description: >
-        Bundle Id of the iOS application integrated with the Fingerprint SDK for
+        Bundle ID of the iOS application integrated with the Fingerprint SDK for
         the event.
     PackageName:
       type: string
@@ -2065,6 +2065,48 @@ components:
       description: >
         `true` if the browser has DevTools open (Chrome, Firefox) or the
         Android/iOS device has Developer Tools enabled, `false` otherwise.
+    DeviceDetails:
+      type: object
+      description: >-
+        Native, SDK-collected mobile device identification signals
+        (manufacturer, model, and OS version). Structurally separate from the
+        top-level `device`, `os`, and `os_version` fields and from
+        `browser_details`, all of which are derived from user-agent parsing
+        rather than native SDK signals.
+      required: []
+      properties:
+        device_manufacturer:
+          type: string
+          examples:
+            - samsung
+            - Apple
+          description: >-
+            Raw device manufacturer string as reported by the device OS. Not
+            normalized: casing is vendor-defined (samsung, Xiaomi, OPPO,
+            HUAWEI). Always `Apple` on iOS.
+        device_model:
+          type: string
+          examples:
+            - SM-G991U
+            - iPhone14,5
+          description: Raw device model identifier, as reported by the mobile OS.
+        os_version:
+          type: string
+          examples:
+            - '9'
+            - '16.1'
+            - 8.1.0
+            - 17.4.1
+          description: >-
+            Mobile operating system version. Component count is not fixed and
+            must not be assumed by consumers: iOS always reports
+            `major.minor.patch` (e.g. `17.4.1`), while Android's precision
+            varies by OS era and which raw signal resolved it — `major` only
+            (`9`, `13`) since Android 10 dropped point releases, `major.minor`
+            (`16.1`) from Android 16 (API 36+) reintroducing a minor component,
+            or a genuine `major.minor.patch` (`8.1.0`) on pre-Android 10 devices
+            that shipped real point releases. Never a fabricated/zero-padded
+            component.
     Emulator:
       type: boolean
       description: >
@@ -2416,7 +2458,7 @@ components:
       type: object
       description: >
         Is absent if the velocity data could not be generated for the visitor
-        Id.
+        ID.
       required:
         - 5_minutes
         - 1_hour
@@ -2451,21 +2493,21 @@ components:
         intervals: 5 minutes, 1 hour, and 24 hours as follows: 
 
 
-        - Number of distinct IP addresses associated to the visitor Id.
+        - Number of distinct IP addresses associated to the visitor ID.
 
-        - Number of distinct linked Ids associated with the visitor Id.
+        - Number of distinct linked IDs associated with the visitor ID.
 
-        - Number of distinct countries associated with the visitor Id.
+        - Number of distinct countries associated with the visitor ID.
 
-        - Number of identification events associated with the visitor Id.
+        - Number of identification events associated with the visitor ID.
 
         - Number of identification events associated with the detected IP
         address.
 
         - Number of distinct IP addresses associated with the provided linked
-        Id.
+        ID.
 
-        - Number of distinct visitor Ids associated with the provided linked Id.
+        - Number of distinct visitor IDs associated with the provided linked ID.
 
 
         The `24_hours` interval of `distinct_ip`, `distinct_linked_id`,
@@ -2474,7 +2516,7 @@ components:
         `distinct_ip_by_linked_id` and `distinct_visitor_id_by_linked_id` will
         be omitted 
 
-        if the number of `events` for the visitor Id in the last 24
+        if the number of `events` for the visitor ID in the last 24
 
         hours (`events.['24_hours']`) is higher than 20.000.
 
@@ -3066,6 +3108,7 @@ components:
             type: string
             examples:
               - automation_tool
+            description: Customer-facing label name defined by the customer.
           prediction:
             type: boolean
           ml_score:
@@ -3075,6 +3118,7 @@ components:
               - 0.95
             minimum: 0
             maximum: 1
+            description: Raw model score between 0 and 1.
       description: >
         Each label returns a prediction (true or false) for a specific use case
         (label field) based on a machine learning score. The machine learning
@@ -3248,6 +3292,11 @@ components:
             - browser
             - android
             - ios
+        device_details:
+          $ref: '#/components/schemas/DeviceDetails'
+          x-platforms:
+            - android
+            - ios
         emulator:
           $ref: '#/components/schemas/Emulator'
           x-platforms:
@@ -3399,6 +3448,7 @@ components:
           x-platforms:
             - android
             - ios
+            - browser
         vpn_methods:
           $ref: '#/components/schemas/VpnMethods'
           x-platforms:
