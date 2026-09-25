@@ -1,5 +1,15 @@
 # Fingerprint Server PHP SDK
 
+## 7.7.0
+
+### Minor Changes
+
+- **events**: Add `device_details` smart signal to `Event` ([39eac7b](https://github.com/fingerprintjs/php-sdk/commit/39eac7b0c4b709861230924e9a256d755da9ed8b))
+
+### Patch Changes
+
+- **events**: Fix descriptions to use ID rather than Id. Clarify descriptions for Labels. ([39eac7b](https://github.com/fingerprintjs/php-sdk/commit/39eac7b0c4b709861230924e9a256d755da9ed8b))
+
 ## 7.6.1
 
 ### Patch Changes
