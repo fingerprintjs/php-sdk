@@ -63,11 +63,18 @@ rm -Rf ./docs/**
 rm -f README.md
 rm -f composer.json
 
+# Generated methods take parameters in schema order, so reorder them to keep positional arguments compatible.
+# The order is configured in `scripts/parameter-order.json`. The schema in `res` is left untouched.
+REORDERED_SCHEMA="$(mktemp ./res/reordered-schema.XXXXXX)"
+trap 'rm -f "$REORDERED_SCHEMA"' EXIT
+docker run --rm -u "$(id -u):$(id -g)" -v "${PWD}:/app" -w /app php:8.4-cli-alpine \
+  php scripts/reorder-schema-parameters.php scripts/parameter-order.json res/fingerprint-server-api.yaml "$REORDERED_SCHEMA"
+
 docker run --rm -u "$(id -u):$(id -g)" -v "${PWD}:/local" -w /local \
   "openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_IMAGE_VERSION}" generate \
   -t ./template \
   -g php \
-  -i ./res/fingerprint-server-api.yaml \
+  -i "$REORDERED_SCHEMA" \
   -o ./ \
   -c ./config.json
 
