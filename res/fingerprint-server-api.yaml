@@ -940,18 +940,6 @@ paths:
             > Note: When using this parameter, only events with the `simulator`
             property set to `true` or `false` are returned. Events without a
             `simulator` Smart Signal result are left out of the response.
-        - name: active_call
-          in: query
-          schema:
-            type: boolean
-          description: >
-            Filter events by Active Call Detection result on mobile devices.
-
-
-            > Note: When using this parameter, only events with the
-            `active_call` property set to `true` or `false` are returned. Events
-            without an `active_call` Smart Signal result are left out of the
-            response.
         - name: source
           in: query
           required: false
@@ -975,6 +963,18 @@ paths:
             > Note: The Automation Intelligence API is in public preview testing
             phase.  If you encounter any issues, please
             [contact](https://fingerprint.com/support/) our support team.
+        - name: active_call
+          in: query
+          schema:
+            type: boolean
+          description: >
+            Filter events by Active Call Detection result on mobile devices.
+
+
+            > Note: When using this parameter, only events with the
+            `active_call` property set to `true` or `false` are returned. Events
+            without an `active_call` Smart Signal result are left out of the
+            response.
       responses:
         '200':
           description: Events matching the filter(s).
