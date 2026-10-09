@@ -379,6 +379,33 @@ class FingerprintApiTest extends TestCase
     }
 
     /**
+     * Verifies getEvent throws 503.
+     *
+     * @throws GuzzleException
+     * @throws \DateMalformedStringException
+     */
+    public function testGetEvent503Error()
+    {
+        $this->mockHandler->append(MockHelper::getMockResponse(MockHelper::OPERATION_ERROR_503_SERVICE_UNAVAILABLE));
+
+        $this->expectException(ApiException::class);
+        $this->expectExceptionCode(503);
+
+        try {
+            $this->api->getEvent(MockHelper::MOCK_EVENT_ID);
+        } catch (ApiException $e) {
+            $this->assertEquals(ErrorResponse::class, get_class($e->getErrorDetails()));
+
+            /** @var ErrorResponse $errorDetails */
+            $errorDetails = $e->getErrorDetails();
+            $this->assertEquals(ErrorCode::SERVICE_UNAVAILABLE, $errorDetails->getError()->getCode());
+            $this->assertEquals('service temporarily unavailable', $errorDetails->getError()->getMessage());
+
+            throw $e;
+        }
+    }
+
+    /**
      * Verifies getEvent throws 504.
      *
      * @throws GuzzleException
@@ -1006,6 +1033,33 @@ class FingerprintApiTest extends TestCase
             $errorDetails = $e->getErrorDetails();
             $this->assertEquals(ErrorCode::FAILED, $errorDetails->getError()->getCode());
             $this->assertEquals('internal server error', $errorDetails->getError()->getMessage());
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Verifies searchEvents throws 503.
+     *
+     * @throws GuzzleException
+     * @throws \DateMalformedStringException
+     */
+    public function testSearchEvents503Error()
+    {
+        $this->mockHandler->append(MockHelper::getMockResponse(MockHelper::OPERATION_ERROR_503_SERVICE_UNAVAILABLE));
+
+        $this->expectException(ApiException::class);
+        $this->expectExceptionCode(503);
+
+        try {
+            $this->api->searchEvents();
+        } catch (ApiException $e) {
+            $this->assertEquals(ErrorResponse::class, get_class($e->getErrorDetails()));
+
+            /** @var ErrorResponse $errorDetails */
+            $errorDetails = $e->getErrorDetails();
+            $this->assertEquals(ErrorCode::SERVICE_UNAVAILABLE, $errorDetails->getError()->getCode());
+            $this->assertEquals('service temporarily unavailable', $errorDetails->getError()->getMessage());
 
             throw $e;
         }

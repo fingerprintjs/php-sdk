@@ -54,6 +54,8 @@ final class MockHelper
 
     public const OPERATION_ERROR_500_INTERNAL_SERVER_ERROR = 'OPERATION_ERROR_500_INTERNAL_SERVER_ERROR';
 
+    public const OPERATION_ERROR_503_SERVICE_UNAVAILABLE = 'OPERATION_ERROR_503_SERVICE_UNAVAILABLE';
+
     public const OPERATION_ERROR_504_GATEWAY_TIMEOUT = 'OPERATION_ERROR_504_GATEWAY_TIMEOUT';
 
     /**
@@ -131,6 +133,10 @@ final class MockHelper
         self::OPERATION_ERROR_500_INTERNAL_SERVER_ERROR => [
             'file' => ['errors', '500_internal_server_error.json'],
             'status' => 500,
+        ],
+        self::OPERATION_ERROR_503_SERVICE_UNAVAILABLE => [
+            'file' => ['errors', '503_service_unavailable.json'],
+            'status' => 503,
         ],
         self::OPERATION_ERROR_504_GATEWAY_TIMEOUT => [
             'file' => ['errors', '504_search_timeout_exceeded.json'],
