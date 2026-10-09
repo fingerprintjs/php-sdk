@@ -1,6 +1,0 @@
-{
-  "error": {
-    "code": "request_cannot_be_parsed",
-    "message": "at least one of ipv4_address or ipv6_address is required"
-  }
-}
