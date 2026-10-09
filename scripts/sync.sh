@@ -41,6 +41,7 @@ examples=(
   'errors/409_state_not_ready.json'
   'errors/429_too_many_requests.json'
   'errors/500_internal_server_error.json'
+  'errors/503_service_unavailable.json'
 )
 
 for example in "${examples[@]}"; do

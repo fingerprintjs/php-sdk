@@ -294,7 +294,7 @@ class DeviceDetails implements ModelInterface, \ArrayAccess, \JsonSerializable
     /**
      * Sets device_model.
      *
-     * @param string $device_model raw device model identifier, as reported by the mobile OS
+     * @param string $device_model Raw device model identifier, as reported by the mobile OS. On Android, this is the vendor-defined model string (e.g., `SM-G991U`). On iOS, this is an Apple board code (e.g., `D84AP`).
      *
      */
     public function setDeviceModel(string $device_model): self

@@ -17,8 +17,7 @@ info:
     email: support@fingerprint.com
   license:
     name: MIT
-    url: >-
-      https://github.com/fingerprintjs/fingerprint-pro-server-api-openapi/blob/main/LICENSE
+    url: https://github.com/fingerprintjs/openapi/blob/main/LICENSE
 tags:
   - name: Fingerprint
     description: >-
@@ -104,12 +103,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '429':
-          description: >
+          description: |
             Too Many Requests. The request is throttled.
-
-            To protect service stability during rare periods of extreme load, we
-            may return HTTP 429 responses with message `too many search
-            requests` even if you are within your assigned rate limits.
           content:
             application/json:
               schema:
@@ -120,10 +115,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service Temporarily Unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '504':
-          description: >-
-            Gateway Timeout. Search execution exceeded the allowed timeout
-            window.
+          description: Gateway Timeout.
+          x-deprecated-response: true
           content:
             application/json:
               schema:
@@ -1005,12 +1005,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '429':
-          description: >
+          description: |
             Too Many Requests. The request is throttled.
-
-            To protect service stability during rare periods of extreme load, we
-            may return HTTP 429 responses with message `too many search
-            requests` even if you are within your assigned rate limits.
           content:
             application/json:
               schema:
@@ -1021,10 +1017,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service Temporarily Unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '504':
-          description: >-
-            Gateway Timeout. Search execution exceeded the allowed timeout
-            window.
+          description: Gateway Timeout.
+          x-deprecated-response: true
           content:
             application/json:
               schema:
@@ -2088,8 +2089,11 @@ components:
           type: string
           examples:
             - SM-G991U
-            - iPhone14,5
-          description: Raw device model identifier, as reported by the mobile OS.
+            - D84AP
+          description: >-
+            Raw device model identifier, as reported by the mobile OS. On
+            Android, this is the vendor-defined model string (e.g., `SM-G991U`).
+            On iOS, this is an Apple board code (e.g., `D84AP`).
         os_version:
           type: string
           examples:

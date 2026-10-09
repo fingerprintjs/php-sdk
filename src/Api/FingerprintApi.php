@@ -1858,6 +1858,15 @@ class FingerprintApi
 
                     throw $e;
 
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $content,
+                        '\Fingerprint\ServerSdk\Model\ErrorResponse'
+                    );
+                    $e->setErrorDetails($data);
+
+                    throw $e;
+
                 case 504:
                     $data = ObjectSerializer::deserialize(
                         $content,
@@ -1940,6 +1949,15 @@ class FingerprintApi
                     throw $e;
 
                 case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $content,
+                        '\Fingerprint\ServerSdk\Model\ErrorResponse'
+                    );
+                    $e->setErrorDetails($data);
+
+                    throw $e;
+
+                case 503:
                     $data = ObjectSerializer::deserialize(
                         $content,
                         '\Fingerprint\ServerSdk\Model\ErrorResponse'
