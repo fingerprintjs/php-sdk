@@ -1,5 +1,12 @@
 # Fingerprint Server PHP SDK
 
+## 7.8.0-beta.0
+
+### Minor Changes
+
+- **events-search**: Add `503` Service Temporarily Unavailable response to the Events Search endpoint ([65a18c2](https://github.com/fingerprintjs/php-sdk/commit/65a18c241b4a9834c67cf92d1e21fe50e8d5b795))
+- **events**: Add `503` Service Temporarily Unavailable response to the Get Event endpoint ([65a18c2](https://github.com/fingerprintjs/php-sdk/commit/65a18c241b4a9834c67cf92d1e21fe50e8d5b795))
+
 ## 7.7.0
 
 ### Minor Changes
