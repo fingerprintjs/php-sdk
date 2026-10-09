@@ -4,5 +4,8 @@
   "initialVersions": {
     "@fingerprint/php-sdk": "7.7.0"
   },
-  "changesets": []
+  "changesets": [
+    "error-response-503-events-search",
+    "error-response-503-events"
+  ]
 }

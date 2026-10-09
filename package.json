@@ -1,6 +1,6 @@
 {
   "name": "@fingerprint/php-sdk",
-  "version": "7.7.0",
+  "version": "7.8.0-beta.0",
   "private": true,
   "engines": {
     "node": ">=18"
