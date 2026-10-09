@@ -6,6 +6,8 @@
   },
   "changesets": [
     "error-response-503-events-search",
-    "error-response-503-events"
+    "error-response-503-events",
+    "events-504-deprecated",
+    "events-search-504-deprecated"
   ]
 }
