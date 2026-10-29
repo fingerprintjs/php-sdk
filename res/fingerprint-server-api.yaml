@@ -145,7 +145,14 @@ paths:
         so the Server API permits updating these attributes after the fact.
 
 
-        **Warning** It's not possible to update events older than one month. 
+        **Warning** You can only update events created within the last 10 days.
+        Updating an older event returns HTTP 400 with the message `event is too
+        old to be updated (> 10 days)`, even if your plan retains events for
+        longer.
+
+
+        **Warning** Events created by the Automation Intelligence API (`POST
+        /edge`) cannot be updated. Updating them returns HTTP 400.
 
 
         **Warning** Trying to update an event immediately after creation may
@@ -176,7 +183,9 @@ paths:
         '200':
           description: OK.
         '400':
-          description: Bad request. The request payload is not valid.
+          description: >-
+            Bad request. The request payload is not valid, the event is older
+            than 10 days, or the event cannot be updated.
           content:
             application/json:
               schema:
@@ -975,6 +984,19 @@ paths:
             `active_call` property set to `true` or `false` are returned. Events
             without an `active_call` Smart Signal result are left out of the
             response.
+        - name: compromised_device_integrity
+          in: query
+          schema:
+            type: boolean
+          description: >
+            Filter events by Compromised Device Integrity result on Android
+            devices.
+
+
+            > Note: When using this parameter, only events with the
+            `compromised_device_integrity` property set to `true` or `false` are
+            returned. Events without a `compromised_device_integrity` Smart
+            Signal result are left out of the response.
       responses:
         '200':
           description: Events matching the filter(s).
@@ -2061,6 +2083,13 @@ components:
 
         * `false` - No signs of cloned application detected or the client is not
         Android.
+    CompromisedDeviceIntegrity:
+      type: boolean
+      description: >
+        `true` if the Android device's boot or system integrity is compromised
+        (e.g., an unlocked bootloader or a failed verified boot), so the device
+        cannot be trusted. `false` if no integrity issue was detected. Available
+        from Android SDK 2.6.0+.
     DeveloperTools:
       type: boolean
       description: >
@@ -3288,6 +3317,10 @@ components:
             - browser
         cloned_app:
           $ref: '#/components/schemas/ClonedApp'
+          x-platforms:
+            - android
+        compromised_device_integrity:
+          $ref: '#/components/schemas/CompromisedDeviceIntegrity'
           x-platforms:
             - android
         developer_tools:

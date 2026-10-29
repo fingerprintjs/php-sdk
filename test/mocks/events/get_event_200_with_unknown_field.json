@@ -321,5 +321,6 @@
     }
   ],
   "active_call": false,
+  "compromised_device_integrity": false,
   "unknown_field": "unknown_field_value"
 }

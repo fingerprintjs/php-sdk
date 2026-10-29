@@ -1,0 +1,8 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@fingerprint/php-sdk": "7.8.0"
+  },
+  "changesets": []
+}
