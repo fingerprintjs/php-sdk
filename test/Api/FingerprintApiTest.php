@@ -773,6 +773,7 @@ class FingerprintApiTest extends TestCase
             'simulator' => true,
             'source' => [[SearchEventsSource::EDGE], ['edge']],
             'active_call' => false,
+            'compromised_device_integrity' => true,
         ];
 
         $this->mockHandler->append(function (RequestInterface $request) use ($expected) {
@@ -846,6 +847,7 @@ class FingerprintApiTest extends TestCase
             simulator: $expected['simulator'],
             source: $expected['source'][0],
             active_call: $expected['active_call'],
+            compromised_device_integrity: $expected['compromised_device_integrity'],
         )->getEvents();
 
         $this->assertCount(1, $events);
@@ -1753,6 +1755,7 @@ class FingerprintApiTest extends TestCase
         $this->assertEquals($actualProximity->confidence, $proximity->getConfidence());
 
         $this->assertEquals($actual->active_call, $event->getActiveCall());
+        $this->assertEquals($actual->compromised_device_integrity, $event->getCompromisedDeviceIntegrity());
 
         $this->assertEquals(BotResult::NOT_DETECTED, $event->getBot());
         $this->assertEquals(null, $event->getBotType());
