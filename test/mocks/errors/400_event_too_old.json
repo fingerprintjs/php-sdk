@@ -1,6 +1,0 @@
-{
-  "error": {
-    "code": "failed",
-    "message": "event is too old to be updated (> 10 days)"
-  }
-}
