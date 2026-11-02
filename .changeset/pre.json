@@ -4,5 +4,8 @@
   "initialVersions": {
     "@fingerprint/php-sdk": "7.8.0"
   },
-  "changesets": []
+  "changesets": [
+    "compromised-device-integrity-events-search",
+    "compromised-device-integrity-events"
+  ]
 }
