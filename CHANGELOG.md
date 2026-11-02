@@ -1,5 +1,12 @@
 # Fingerprint Server PHP SDK
 
+## 7.9.0-beta.0
+
+### Minor Changes
+
+- **events-search**: Add `compromised_device_integrity` filter parameter ([9712871](https://github.com/fingerprintjs/php-sdk/commit/971287156cc6318cfd94355ddb4d68ae6a0cd459))
+- **events**: Add `compromised_device_integrity` to `Event` ([0601f61](https://github.com/fingerprintjs/php-sdk/commit/0601f6192927eaafbf49ad8645a8cce3b648e3e9))
+
 ## 7.8.0
 
 ### Minor Changes
