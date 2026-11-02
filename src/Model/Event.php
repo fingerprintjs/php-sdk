@@ -91,6 +91,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_type' => 'string',
         'bot_info' => '\Fingerprint\ServerSdk\Model\BotInfo',
         'cloned_app' => 'bool',
+        'compromised_device_integrity' => 'bool',
         'developer_tools' => 'bool',
         'device_details' => '\Fingerprint\ServerSdk\Model\DeviceDetails',
         'emulator' => 'bool',
@@ -169,6 +170,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_type' => null,
         'bot_info' => null,
         'cloned_app' => null,
+        'compromised_device_integrity' => null,
         'developer_tools' => null,
         'device_details' => null,
         'emulator' => null,
@@ -243,6 +245,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_type' => false,
         'bot_info' => false,
         'cloned_app' => false,
+        'compromised_device_integrity' => false,
         'developer_tools' => false,
         'device_details' => false,
         'emulator' => false,
@@ -325,6 +328,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_type' => 'bot_type',
         'bot_info' => 'bot_info',
         'cloned_app' => 'cloned_app',
+        'compromised_device_integrity' => 'compromised_device_integrity',
         'developer_tools' => 'developer_tools',
         'device_details' => 'device_details',
         'emulator' => 'emulator',
@@ -399,6 +403,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_type' => 'setBotType',
         'bot_info' => 'setBotInfo',
         'cloned_app' => 'setClonedApp',
+        'compromised_device_integrity' => 'setCompromisedDeviceIntegrity',
         'developer_tools' => 'setDeveloperTools',
         'device_details' => 'setDeviceDetails',
         'emulator' => 'setEmulator',
@@ -473,6 +478,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         'bot_type' => 'getBotType',
         'bot_info' => 'getBotInfo',
         'cloned_app' => 'getClonedApp',
+        'compromised_device_integrity' => 'getCompromisedDeviceIntegrity',
         'developer_tools' => 'getDeveloperTools',
         'device_details' => 'getDeviceDetails',
         'emulator' => 'getEmulator',
@@ -556,6 +562,7 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
         $this->setIfExists('bot_type', $data ?? [], null);
         $this->setIfExists('bot_info', $data ?? [], null);
         $this->setIfExists('cloned_app', $data ?? [], null);
+        $this->setIfExists('compromised_device_integrity', $data ?? [], null);
         $this->setIfExists('developer_tools', $data ?? [], null);
         $this->setIfExists('device_details', $data ?? [], null);
         $this->setIfExists('emulator', $data ?? [], null);
@@ -1354,6 +1361,28 @@ class Event implements ModelInterface, \ArrayAccess, \JsonSerializable
     public function setClonedApp(bool $cloned_app): self
     {
         $this->container['cloned_app'] = $cloned_app;
+
+        return $this;
+    }
+
+    /**
+     * Gets compromised_device_integrity.
+     *
+     */
+    public function getCompromisedDeviceIntegrity(): ?bool
+    {
+        return $this->container['compromised_device_integrity'];
+    }
+
+    /**
+     * Sets compromised_device_integrity.
+     *
+     * @param bool $compromised_device_integrity `true` if the Android device's boot or system integrity is compromised (e.g., an unlocked bootloader or a failed verified boot), so the device cannot be trusted. `false` if no integrity issue was detected. Available from Android SDK 2.6.0+.
+     *
+     */
+    public function setCompromisedDeviceIntegrity(bool $compromised_device_integrity): self
+    {
+        $this->container['compromised_device_integrity'] = $compromised_device_integrity;
 
         return $this;
     }

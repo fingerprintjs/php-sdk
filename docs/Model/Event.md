@@ -34,6 +34,7 @@ Name | Type | Description | Notes
 **bot_type** | **string** | Additional classification of the bot type if detected. | [optional]
 **bot_info** | [**\Fingerprint\ServerSdk\Model\BotInfo**](BotInfo.md) |  | [optional]
 **cloned_app** | **bool** | Android specific cloned application detection. There are 2 values:  * &#x60;true&#x60; - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected). * &#x60;false&#x60; - No signs of cloned application detected or the client is not Android. | [optional]
+**compromised_device_integrity** | **bool** | &#x60;true&#x60; if the Android device&#39;s boot or system integrity is compromised (e.g., an unlocked bootloader or a failed verified boot), so the device cannot be trusted. &#x60;false&#x60; if no integrity issue was detected. Available from Android SDK 2.6.0+. | [optional]
 **developer_tools** | **bool** | &#x60;true&#x60; if the browser has DevTools open (Chrome, Firefox) or the Android/iOS device has Developer Tools enabled, &#x60;false&#x60; otherwise. | [optional]
 **device_details** | [**\Fingerprint\ServerSdk\Model\DeviceDetails**](DeviceDetails.md) |  | [optional]
 **emulator** | **bool** | Android specific emulator detection. There are 2 values:  * &#x60;true&#x60; - Emulated environment detected (e.g. launch inside of AVD).  * &#x60;false&#x60; - No signs of emulated environment detected or the client is not Android. | [optional]

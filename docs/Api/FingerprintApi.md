@@ -172,7 +172,7 @@ try {
 [[Back to README]](../../README.md)
 
 # **searchEvents**
->  \Fingerprint\ServerSdk\Model\EventSearch searchEvents($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $source, $active_call)
+>  \Fingerprint\ServerSdk\Model\EventSearch searchEvents($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $source, $active_call, $compromised_device_integrity)
 
 Search events
 
@@ -277,9 +277,10 @@ $incremental_identification_status = \Fingerprint\ServerSdk\Model\SearchEventsIn
 $simulator = True; // bool | Filter events by iOS Simulator Detection result.  > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response.
 $source = array(new \Fingerprint\ServerSdk\Model\\Fingerprint\ServerSdk\Model\SearchEventsSource()); // \Fingerprint\ServerSdk\Model\SearchEventsSource[] | Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team.
 $active_call = True; // bool | Filter events by Active Call Detection result on mobile devices.  > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response.
+$compromised_device_integrity = True; // bool | Filter events by Compromised Device Integrity result on Android devices.  > Note: When using this parameter, only events with the `compromised_device_integrity` property set to `true` or `false` are returned. Events without a `compromised_device_integrity` Smart Signal result are left out of the response.
 
 try {
-    $result = $apiInstance->searchEvents($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $source, $active_call);
+    $result = $apiInstance->searchEvents($limit, $pagination_key, $visitor_id, $high_recall_id, $bot, $bot_info, $bot_info_category, $bot_info_identity, $bot_info_confidence, $bot_info_provider, $bot_info_name, $ip_address, $asn, $linked_id, $url, $bundle_id, $package_name, $origin, $start, $end, $reverse, $suspect, $vpn, $virtual_machine, $tampering, $anti_detect_browser, $incognito, $privacy_settings, $jailbroken, $frida, $factory_reset, $cloned_app, $emulator, $root_apps, $vpn_confidence, $min_suspect_score, $developer_tools, $location_spoofing, $mitm_attack, $rare_device, $rare_device_percentile_bucket, $proxy, $sdk_version, $sdk_platform, $environment, $proximity_id, $total_hits, $tor_node, $incremental_identification_status, $simulator, $source, $active_call, $compromised_device_integrity);
     var_dump($result);
 } catch (ApiException $e) {
     $errorDetails = $e->getErrorDetails()->getErrorDetails();
@@ -345,6 +346,7 @@ try {
 | **simulator** | **bool** | Filter events by iOS Simulator Detection result.  > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response. | [optional] |
 | **source** | [**\Fingerprint\ServerSdk\Model\SearchEventsSource[]**](../Model/\Fingerprint\ServerSdk\Model\SearchEventsSource.md) | Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.  To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.  > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team. | [optional] |
 | **active_call** | **bool** | Filter events by Active Call Detection result on mobile devices.  > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response. | [optional] |
+| **compromised_device_integrity** | **bool** | Filter events by Compromised Device Integrity result on Android devices.  > Note: When using this parameter, only events with the `compromised_device_integrity` property set to `true` or `false` are returned. Events without a `compromised_device_integrity` Smart Signal result are left out of the response. | [optional] |
 
 ### Return type
 
@@ -373,7 +375,9 @@ Change information in existing events specified by `event_id` or *flag suspiciou
 When an event is created, it can be assigned `linked_id` and `tags` submitted through the JS agent parameters. 
 This information might not have been available on the client initially, so the Server API permits updating these attributes after the fact.
 
-**Warning** It's not possible to update events older than one month. 
+**Warning** You can only update events created within the last 10 days. Updating an older event returns HTTP 400 with the message `event is too old to be updated (> 10 days)`, even if your plan retains events for longer.
+
+**Warning** Events created by the Automation Intelligence API (`POST /edge`) cannot be updated. Updating them returns HTTP 400.
 
 **Warning** Trying to update an event immediately after creation may temporarily result in an 
 error (HTTP 409 Conflict. The event is not mutable yet.) as the event is fully propagated across our systems. In such a case, simply retry the request.

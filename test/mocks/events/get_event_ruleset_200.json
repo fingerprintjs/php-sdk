@@ -320,6 +320,7 @@
     }
   ],
   "active_call": false,
+  "compromised_device_integrity": false,
   "rule_action": {
     "type": "block",
     "status_code": 403,

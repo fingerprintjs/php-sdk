@@ -321,7 +321,8 @@
           "ml_score": 0.01
         }
       ],
-      "active_call": false
+      "active_call": false,
+      "compromised_device_integrity": false
     }
   ],
   "pagination_key": "S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q"
