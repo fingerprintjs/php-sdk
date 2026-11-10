@@ -5,7 +5,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 #############
 # Constants #
 #############
-OPENAPI_GENERATOR_IMAGE_VERSION="7.23.0"
+OPENAPI_GENERATOR_IMAGE_VERSION="7.23.0@sha256:5ffccd3b0d4ac57eac443e1c9b3e2f2bb7f0a21ffe6c6701f3690d7edc78bf2d"
 
 ######################
 # Version Resolution #
