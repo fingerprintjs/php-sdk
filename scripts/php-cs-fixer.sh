@@ -2,7 +2,7 @@
 
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
-PHP_CS_FIXER_IMAGE_VERSION="3.95-php8.4"
+PHP_CS_FIXER_IMAGE_VERSION="3.95-php8.4@sha256:57bd222a8032b764b7bffda03e42fddb567731178e07004b98af8ef328efd49d"
 
 require_cmd docker
 
