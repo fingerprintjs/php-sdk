@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "failed",
+    "message": "edge events cannot be updated"
+  }
+}
