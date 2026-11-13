@@ -317,6 +317,11 @@
       "label": "fraud",
       "prediction": false,
       "ml_score": 0.01
+    },
+    {
+      "label": "chargebacks",
+      "prediction": false,
+      "ml_score": 0.01
     }
   ],
   "active_call": false,
