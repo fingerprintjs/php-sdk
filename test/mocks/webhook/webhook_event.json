@@ -3,6 +3,7 @@
   "tags": {},
   "timestamp": 1708102555327,
   "event_id": "1708102555327.NLOjmg",
+  "source": "device",
   "url": "https://www.example.com/login?hope{this{works[!",
   "ip_address": "61.127.217.15",
   "user_agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) ....",

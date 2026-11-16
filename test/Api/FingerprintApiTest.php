@@ -1795,7 +1795,7 @@ class FingerprintApiTest extends TestCase
 
         $labels = $event->getLabels();
         $actualLabels = $actual->labels;
-        $totalLabel = count($labels);
+        $totalLabel = count($actualLabels);
         $this->assertCount($totalLabel, $labels);
         for ($i = 0; $i < $totalLabel; ++$i) {
             $this->assertEquals($actualLabels[$i]->label, $labels[$i]->getLabel());
