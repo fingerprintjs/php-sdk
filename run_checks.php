@@ -47,7 +47,7 @@ $client = new FingerprintApi(
     new Client()
 );
 
-$start = (new DateTime())->sub(new DateInterval('P89D'));
+$start = (new DateTime())->sub(new DateInterval('P29D'));
 $end = new DateTime();
 
 // FingerprintApi->searchEvents usage example
